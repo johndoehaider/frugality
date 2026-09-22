@@ -21,12 +21,27 @@ public class Character : MonoBehaviour
     [SerializeField] private AudioSource weaponAudioSource;
     [SerializeField] private AudioSource reloadAudioSource;
 
+    [Header("Knife")]
+    [SerializeField] private GameObject knifeObject;
+    [SerializeField] private Transform realRightHandBone; 
+    [SerializeField] private float knifeDamage = 150f;
+    [SerializeField] private float knifeRange = 2f;
+    [SerializeField] private float knifeRadius = 0.25f;
+    [SerializeField] private LayerMask enemyLayer;
+
+    [Header("Knife Audio")]
+    [SerializeField] private AudioClip knifeWhoosh;
+    [SerializeField] private AudioClip knifeSwing1;
+    [SerializeField] private AudioClip knifeSwing2;
+    [SerializeField] private AudioClip knifeKillSound;
+
     private bool aiming;
     private bool running;
     private bool holstered;
     private bool reloading;
     private bool inspecting;
     private bool holstering;
+    private bool knifing;
 
     private bool aimButtonHeld;
     private bool runButtonHeld;
@@ -49,10 +64,12 @@ public class Character : MonoBehaviour
     private Vector2 movementInput;
 
     private CharacterKinematics characterKinematics;
+    private PlayerPoints playerPoints;
     private Movement movement;
     private Weapon equippedWeapon;
     private Scope equippedWeaponScope;
     private Magazine equippedWeaponMagazine;
+    private GameObject equippedWeaponClone;
 
     // Animator hashes let us refer to Animator parameters with an int instead of repeatedly using strings.
     private static readonly int HashAiming = Animator.StringToHash("Aiming");
@@ -60,6 +77,7 @@ public class Character : MonoBehaviour
     private static readonly int HashAim = Animator.StringToHash("Aim");
     private static readonly int HashRunning = Animator.StringToHash("Running");
     private static readonly int HashHolstered = Animator.StringToHash("Holstered");
+    private static readonly int HashKnife = Animator.StringToHash("Knife");
 
     // Sets up the cursor, gets the IK component, initializes the inventory, and loads the starting weapon.
     private void Awake()
@@ -68,6 +86,7 @@ public class Character : MonoBehaviour
         UpdateCursorState();
 
         characterKinematics = GetComponent<CharacterKinematics>();
+        playerPoints = GetComponent<PlayerPoints>();
         movement = GetComponent<Movement>();
 
         inventory.Init();
@@ -94,7 +113,7 @@ public class Character : MonoBehaviour
     // Runs IK after the normal animation update so the hands can be corrected into their final weapon positions.
     private void LateUpdate()
     {
-        if (equippedWeapon != null && equippedWeaponScope != null)
+        if (!knifing && equippedWeapon != null && equippedWeaponScope != null)
         {
             characterKinematics.Compute();
         }
@@ -179,7 +198,7 @@ public class Character : MonoBehaviour
     // Returns whether the crosshair should currently be visible.
     public bool IsCrosshairVisible()
     {
-        if (!aiming && !holstered)
+        if (!aiming && !holstered && !knifing)
         {
             return true;
         }
@@ -267,6 +286,102 @@ public class Character : MonoBehaviour
         }
     }
 
+    private void Knife()
+    {
+        knifing = true;
+        aiming = false;
+        
+        CancelReloadAnimation(); 
+
+        // 1. Hide the real weapon so it doesn't float in your face
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.gameObject.SetActive(false);
+
+            // 2. Clone the equipped weapon and glue it directly to the true right hand bone
+            if (realRightHandBone != null)
+            {
+                equippedWeaponClone = Instantiate(equippedWeapon.gameObject, realRightHandBone);
+                equippedWeaponClone.name = equippedWeapon.gameObject.name;
+
+                equippedWeaponClone.SetActive(true);
+
+                equippedWeaponClone.transform.localPosition = new Vector3(0.1517f, -0.0533f, -0.0232f);
+                equippedWeaponClone.transform.localRotation = Quaternion.Euler(16.122f, 113.661f, 103.924f);
+                equippedWeaponClone.transform.localScale = Vector3.one;
+                
+                SetLayerRecursively(equippedWeaponClone, 31); 
+                if (equippedWeaponClone.TryGetComponent(out Weapon weaponScript)) Destroy(weaponScript);
+                if (equippedWeaponClone.TryGetComponent(out WeaponAttachmentManager attachManager)) Destroy(attachManager);
+                if (equippedWeaponClone.TryGetComponent(out WeaponAnimationEventHandler eventHandler)) Destroy(eventHandler);
+                if (equippedWeaponClone.TryGetComponent(out Animator cloneAnimator)) Destroy(cloneAnimator);
+            }
+        }
+
+        knifeObject.SetActive(true);
+        characterAnimator.SetTrigger(HashKnife);
+    }
+
+    public void KnifeHit()
+    {
+        if (Physics.SphereCast(
+            cameraWorld.transform.position, knifeRadius, cameraWorld.transform.forward,
+            out RaycastHit hit, knifeRange, enemyLayer, QueryTriggerInteraction.Ignore))
+        {
+            Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+
+            if (enemy != null)
+            {
+                bool killingBlow = enemy.GetEnemyHealth() <= knifeDamage;
+                enemy.LoseHealth(knifeDamage, playerPoints);
+
+                if (killingBlow)
+                {
+                    weaponAudioSource.PlayOneShot(knifeKillSound);
+                    playerPoints.AddPoints(80);
+                }
+                else
+                {
+                    AudioClip slashSound;
+
+                    if (Random.Range(0, 2) == 0)
+                    {
+                        slashSound = knifeSwing1;
+                    }
+                    else
+                    {
+                        slashSound = knifeSwing2;
+                    }
+
+                    weaponAudioSource.PlayOneShot(slashSound);
+                }
+
+                return;
+            }
+        }
+        weaponAudioSource.PlayOneShot(knifeWhoosh);
+    }
+
+    public void AnimationEndedKnife()
+    {
+        knifeObject.SetActive(false);
+
+        if (equippedWeaponClone != null)
+        {
+            Destroy(equippedWeaponClone);
+        }
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.gameObject.SetActive(true);
+        }
+
+        knifing = false;
+
+        UpdateAimingState(); 
+        UpdateAnimator();
+
+    }
+
     // Chooses the correct reload animation, marks the player as reloading, and tells the weapon to reload.
     private void PlayReloadAnimation()
     {
@@ -289,10 +404,28 @@ public class Character : MonoBehaviour
                 reloading = true;
                 equippedWeapon.ReloadAnimation();
             }
-            else
+            
+            // Play can't reload sound effect
+            else if (equippedWeapon.GetAmmunitionReserved() <= 0)
             {
-                // play can't reload sound effect
+                AudioClip cantReloadSound = equippedWeapon.GetAudioClipCantReload();
+
+                if (cantReloadSound != null)
+                {
+                    weaponAudioSource.PlayOneShot(cantReloadSound);
+                }
             }
+        }
+    }
+
+    private void CancelReloadAnimation()
+    {
+        reloading = false;
+        characterAnimator.Play("Default", layerActions, 0f);
+
+        if (reloadAudioSource != null)
+        {
+            reloadAudioSource.Stop();
         }
     }
 
@@ -389,7 +522,7 @@ public class Character : MonoBehaviour
     // Returns whether firing is allowed in the player's current state.
     private bool CanPlayAnimationFire()
     {
-        if (holstered || holstering || reloading || inspecting)
+        if (holstered || holstering || reloading || inspecting || knifing)
         {
             return false;
         }
@@ -402,7 +535,7 @@ public class Character : MonoBehaviour
     // Returns whether reloading is allowed in the player's current state.
     private bool CanPlayAnimationReload()
     {
-        if (reloading || inspecting)
+        if (reloading || inspecting || knifing)
         {
             return false;
         }
@@ -415,7 +548,7 @@ public class Character : MonoBehaviour
     // Returns whether holstering is allowed in the player's current state.
     private bool CanPlayAnimationHolster()
     {
-        if (reloading || inspecting)
+        if (reloading || inspecting || knifing)
         {
             return false;
         }
@@ -428,7 +561,7 @@ public class Character : MonoBehaviour
     // Returns whether changing weapons is allowed in the player's current state.
     private bool CanChangeWeapon()
     {
-        if (holstering || reloading || inspecting)
+        if (holstering || reloading || inspecting || knifing)
         {
             return false;
         }
@@ -441,7 +574,7 @@ public class Character : MonoBehaviour
     // Returns whether inspecting is allowed in the player's current state.
     private bool CanPlayAnimationInspect()
     {
-        if (holstered || holstering || reloading || inspecting)
+        if (holstered || holstering || reloading || inspecting || knifing)
         {
             return false;
         }
@@ -454,7 +587,7 @@ public class Character : MonoBehaviour
     // Returns whether aiming is allowed in the player's current state.
     private bool CanAim()
     {
-        if (holstered || inspecting || reloading || holstering)
+        if (holstered || inspecting || reloading || holstering || knifing)
         {
             return false;
         }
@@ -469,7 +602,7 @@ public class Character : MonoBehaviour
     {
         bool canRun = true;
 
-        if (inspecting || reloading || aiming)
+        if (inspecting || reloading || aiming || knifing)
         {
             canRun = false;
         }
@@ -498,6 +631,28 @@ public class Character : MonoBehaviour
         }
 
         return canRun;
+    }
+
+    private bool CanKnife()
+    {
+        if (knifing || holstered || holstering || inspecting)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        if (obj == null) return;
+        
+        obj.layer = newLayer; // Changes the current object's layer
+        
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, newLayer); // Changes the child's layer too
+        }
     }
 
     // InputAction.CallbackContext tells us what phase of an Input System action just happened.
@@ -529,6 +684,17 @@ public class Character : MonoBehaviour
                         Fire();
                     }
                 }
+            }
+        }
+    }
+
+    public void OnTryKnife(InputAction.CallbackContext context)
+    {
+        if (cursorLocked && context.performed)
+        {
+            if (CanKnife())
+            {
+                Knife();
             }
         }
     }
@@ -707,6 +873,14 @@ public class Character : MonoBehaviour
         if (equippedWeapon != null)
         {
             equippedWeapon.FillAmmunition();
+        }
+    }
+
+    public void MaxAmmo()
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.MaxAmmo();
         }
     }
 

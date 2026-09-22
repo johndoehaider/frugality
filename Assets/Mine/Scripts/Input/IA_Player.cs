@@ -156,7 +156,7 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""6bf74daf-8a98-48de-b071-9a4f6efdc3f3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false,
@@ -213,49 +213,19 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""Time Speed Up"",
-                    ""type"": ""Button"",
-                    ""id"": ""418359b7-9253-4bb8-a363-e1fb23da7133"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
-                    ""name"": ""Time Speed Down"",
-                    ""type"": ""Button"",
-                    ""id"": ""e3ef7edf-7ab7-43b4-8fdc-67547435a45b"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
-                    ""name"": ""Time Speed Toggle"",
-                    ""type"": ""Button"",
-                    ""id"": ""bfdda7d2-cee8-4cb7-91a0-f3d4411e7f97"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
-                    ""name"": ""Tutorial"",
-                    ""type"": ""Button"",
-                    ""id"": ""207fb2a2-8add-4ddb-bda7-c1887aeb313a"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": ""Hold"",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
                     ""name"": ""Interact"",
                     ""type"": ""Button"",
                     ""id"": ""88ca9c98-38a5-4651-9dee-a352d1ec7d6a"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""Melee"",
+                    ""type"": ""Button"",
+                    ""id"": ""6b3f8224-9d9e-4858-91bb-ac245c309775"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -442,50 +412,6 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""8a482ba6-21ca-4c8f-9727-9fbb2368f00f"",
-                    ""path"": ""<Keyboard>/9"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Speed Up"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""5e79e440-5045-4bbc-a8a7-30167589d397"",
-                    ""path"": ""<Gamepad>/dpad/up"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Speed Up"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""83f69484-fcc2-48ee-8c04-6c5d1e4f6e60"",
-                    ""path"": ""<Keyboard>/8"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Speed Down"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""65c0a406-e8d6-434f-aeff-75269e0cbaaa"",
-                    ""path"": ""<Gamepad>/dpad/down"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Speed Down"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""64767df0-dd96-438b-878e-fe24248339dd"",
                     ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
@@ -503,17 +429,6 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Inventory Next"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""7bfee678-d7c2-4845-b78a-7b0479dbb478"",
-                    ""path"": ""<Keyboard>/5"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Time Speed Toggle"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -607,34 +522,56 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e2c127bc-a838-4782-a49c-063fa51f1d76"",
-                    ""path"": ""<Keyboard>/tab"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Tutorial"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""6a9054cd-1ecc-4095-a089-d0e32b67ab2c"",
-                    ""path"": ""<Gamepad>/select"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Tutorial"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""0f2e1797-f3e6-4940-a55c-494ff1920be0"",
                     ""path"": ""<Keyboard>/e"",
-                    ""interactions"": ""Hold"",
+                    ""interactions"": ""Hold(duration=0.2,pressPoint=0.3)"",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7d13245c-c9c3-4272-9b81-e7f40dee0d70"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9fca817b-1ba7-4472-adbe-b5d8eaa97b0d"",
+                    ""path"": ""<Mouse>/middleButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d5148361-6747-487b-8e77-0a61769752e0"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7afb7ebd-10bf-45cd-8e30-e53596d3de1c"",
+                    ""path"": ""<Gamepad>/rightStickPress"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Melee"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -657,11 +594,8 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
         m_Player_LockCursor = m_Player.FindAction("Lock Cursor", throwIfNotFound: true);
         m_Player_InventoryNext = m_Player.FindAction("Inventory Next", throwIfNotFound: true);
         m_Player_InventoryNextWheel = m_Player.FindAction("Inventory Next Wheel", throwIfNotFound: true);
-        m_Player_TimeSpeedUp = m_Player.FindAction("Time Speed Up", throwIfNotFound: true);
-        m_Player_TimeSpeedDown = m_Player.FindAction("Time Speed Down", throwIfNotFound: true);
-        m_Player_TimeSpeedToggle = m_Player.FindAction("Time Speed Toggle", throwIfNotFound: true);
-        m_Player_Tutorial = m_Player.FindAction("Tutorial", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
+        m_Player_Melee = m_Player.FindAction("Melee", throwIfNotFound: true);
     }
 
     ~@IA_Player()
@@ -754,11 +688,8 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_LockCursor;
     private readonly InputAction m_Player_InventoryNext;
     private readonly InputAction m_Player_InventoryNextWheel;
-    private readonly InputAction m_Player_TimeSpeedUp;
-    private readonly InputAction m_Player_TimeSpeedDown;
-    private readonly InputAction m_Player_TimeSpeedToggle;
-    private readonly InputAction m_Player_Tutorial;
     private readonly InputAction m_Player_Interact;
+    private readonly InputAction m_Player_Melee;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -819,25 +750,13 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @InventoryNextWheel => m_Wrapper.m_Player_InventoryNextWheel;
         /// <summary>
-        /// Provides access to the underlying input action "Player/TimeSpeedUp".
-        /// </summary>
-        public InputAction @TimeSpeedUp => m_Wrapper.m_Player_TimeSpeedUp;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/TimeSpeedDown".
-        /// </summary>
-        public InputAction @TimeSpeedDown => m_Wrapper.m_Player_TimeSpeedDown;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/TimeSpeedToggle".
-        /// </summary>
-        public InputAction @TimeSpeedToggle => m_Wrapper.m_Player_TimeSpeedToggle;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/Tutorial".
-        /// </summary>
-        public InputAction @Tutorial => m_Wrapper.m_Player_Tutorial;
-        /// <summary>
         /// Provides access to the underlying input action "Player/Interact".
         /// </summary>
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Melee".
+        /// </summary>
+        public InputAction @Melee => m_Wrapper.m_Player_Melee;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -900,21 +819,12 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
             @InventoryNextWheel.started += instance.OnInventoryNextWheel;
             @InventoryNextWheel.performed += instance.OnInventoryNextWheel;
             @InventoryNextWheel.canceled += instance.OnInventoryNextWheel;
-            @TimeSpeedUp.started += instance.OnTimeSpeedUp;
-            @TimeSpeedUp.performed += instance.OnTimeSpeedUp;
-            @TimeSpeedUp.canceled += instance.OnTimeSpeedUp;
-            @TimeSpeedDown.started += instance.OnTimeSpeedDown;
-            @TimeSpeedDown.performed += instance.OnTimeSpeedDown;
-            @TimeSpeedDown.canceled += instance.OnTimeSpeedDown;
-            @TimeSpeedToggle.started += instance.OnTimeSpeedToggle;
-            @TimeSpeedToggle.performed += instance.OnTimeSpeedToggle;
-            @TimeSpeedToggle.canceled += instance.OnTimeSpeedToggle;
-            @Tutorial.started += instance.OnTutorial;
-            @Tutorial.performed += instance.OnTutorial;
-            @Tutorial.canceled += instance.OnTutorial;
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @Melee.started += instance.OnMelee;
+            @Melee.performed += instance.OnMelee;
+            @Melee.canceled += instance.OnMelee;
         }
 
         /// <summary>
@@ -962,21 +872,12 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
             @InventoryNextWheel.started -= instance.OnInventoryNextWheel;
             @InventoryNextWheel.performed -= instance.OnInventoryNextWheel;
             @InventoryNextWheel.canceled -= instance.OnInventoryNextWheel;
-            @TimeSpeedUp.started -= instance.OnTimeSpeedUp;
-            @TimeSpeedUp.performed -= instance.OnTimeSpeedUp;
-            @TimeSpeedUp.canceled -= instance.OnTimeSpeedUp;
-            @TimeSpeedDown.started -= instance.OnTimeSpeedDown;
-            @TimeSpeedDown.performed -= instance.OnTimeSpeedDown;
-            @TimeSpeedDown.canceled -= instance.OnTimeSpeedDown;
-            @TimeSpeedToggle.started -= instance.OnTimeSpeedToggle;
-            @TimeSpeedToggle.performed -= instance.OnTimeSpeedToggle;
-            @TimeSpeedToggle.canceled -= instance.OnTimeSpeedToggle;
-            @Tutorial.started -= instance.OnTutorial;
-            @Tutorial.performed -= instance.OnTutorial;
-            @Tutorial.canceled -= instance.OnTutorial;
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @Melee.started -= instance.OnMelee;
+            @Melee.performed -= instance.OnMelee;
+            @Melee.canceled -= instance.OnMelee;
         }
 
         /// <summary>
@@ -1102,39 +1003,18 @@ public partial class @IA_Player: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInventoryNextWheel(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Time Speed Up" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTimeSpeedUp(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Time Speed Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTimeSpeedDown(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Time Speed Toggle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTimeSpeedToggle(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Tutorial" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnTutorial(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnInteract(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Melee" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMelee(InputAction.CallbackContext context);
     }
 }

@@ -27,6 +27,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private AudioClip audioClipUnholster;
     [SerializeField] private AudioClip audioClipReload;
     [SerializeField] private AudioClip audioClipReloadEmpty;
+    [SerializeField] private AudioClip audioClipCantReload;
     [SerializeField] private AudioClip audioClipFireEmpty;
 
     [Header("Ammunition")]
@@ -40,6 +41,7 @@ public class Weapon : MonoBehaviour
     private Muzzle muzzle;
 
     private Character playerCharacter;
+    private PlayerPoints playerPoints;
     private Transform playerCamera;
 
     private int currentAmmoInClip;
@@ -51,6 +53,7 @@ public class Weapon : MonoBehaviour
         animator = GetComponent<Animator>();
         attachmentManager = GetComponent<WeaponAttachmentManager>();
         playerCharacter = GetComponentInParent<Character>();
+        playerPoints = GetComponentInParent<PlayerPoints>();
 
         if (playerCharacter != null)
         {
@@ -128,7 +131,7 @@ public class Weapon : MonoBehaviour
 
                     if (enemy != null)
                     {
-                        enemy.LoseHealth(damage);
+                        enemy.LoseHealth(damage, playerPoints);
                     }
                 }
 
@@ -164,6 +167,11 @@ public class Weapon : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void MaxAmmo()
+    {
+        currentReserveAmmo = maxReserveAmmo;
     }
 
     // Spawns a casing at the weapon's ejection socket.
@@ -209,6 +217,11 @@ public class Weapon : MonoBehaviour
     public AudioClip GetAudioClipReloadEmpty()
     {
         return audioClipReloadEmpty;
+    }
+
+    public AudioClip GetAudioClipCantReload()
+    {
+        return audioClipCantReload;
     }
 
     // Returns the empty-fire sound.

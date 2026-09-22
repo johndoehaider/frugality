@@ -20,12 +20,15 @@ public class Movement : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private AudioSource footstepAudioSource;
+    [SerializeField] private Animator characterAnimator;
 
     private Rigidbody rigidBody;
     private CapsuleCollider capsule;
     private Character playerCharacter;
 
     private bool grounded;
+    private bool wasGrounded;
+    private bool jumped;
 
     // Reuses one array for ground checks so Unity does not create a new one every physics frame.
     private readonly RaycastHit[] groundHits = new RaycastHit[8];
@@ -62,6 +65,22 @@ public class Movement : MonoBehaviour
                 if (rigidBody.linearVelocity.y <= 0.1f)
                 {
                     grounded = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (jumped && rigidBody.linearVelocity.y <= 0.1f)
+        {
+            for (int i = 0; i < collision.contactCount; i++)
+            {
+                if (collision.GetContact(i).normal.y > 0.5f)
+                {
+                    characterAnimator.SetTrigger("Land");
+                    jumped = false;
                     break;
                 }
             }
@@ -151,7 +170,9 @@ public class Movement : MonoBehaviour
         if (grounded)
         {
             rigidBody.AddForce(Vector3.up * jumpStrength, ForceMode.VelocityChange);
+            characterAnimator.SetTrigger("Jump");
             grounded = false;
+            jumped = true;
         }
     }
 

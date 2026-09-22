@@ -9,6 +9,7 @@ public class PlaySoundCharacterBehaviour : StateMachineBehaviour
         Unholster,
         Reload,
         ReloadEmpty,
+        //CantReload,
         Fire,
         FireEmpty
     }
@@ -22,7 +23,7 @@ public class PlaySoundCharacterBehaviour : StateMachineBehaviour
     private AudioSource weaponAudioSource;  
     private AudioSource reloadAudioSource;
 
-    // OnStateEnter is called automatically when the Animator enters the state this behaviour is attached to.
+    // OnStateEnter is called automatically when the Animator enters the state this behaviour is attached to
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         // GetComponentInParent finds our Character and AudioSource from the Animator's Player hierarchy.
@@ -59,6 +60,7 @@ public class PlaySoundCharacterBehaviour : StateMachineBehaviour
             SoundType.Unholster => weapon.GetAudioClipUnholster(),
             SoundType.Reload => weapon.GetAudioClipReload(),
             SoundType.ReloadEmpty => weapon.GetAudioClipReloadEmpty(),
+            //SoundType.CantReload => weapon.GetAudioClipCantReload(),
             SoundType.Fire => weapon.GetAudioClipFire(),
             SoundType.FireEmpty => weapon.GetAudioClipFireEmpty(),
             _ => null

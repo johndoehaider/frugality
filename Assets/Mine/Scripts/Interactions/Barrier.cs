@@ -7,8 +7,6 @@ public class Barrier : MonoBehaviour, IInteractable
     [SerializeField] private Collider zombieBlocker;
     [SerializeField] private float repairCooldown = 0.5f;
 
-    private PlayerPoints playerPoints;
-
     private int brokenBoards = 0;
     private int pointLimit = 100;
     private int pointsRecieved = 0;
@@ -18,7 +16,7 @@ public class Barrier : MonoBehaviour, IInteractable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        playerPoints = FindFirstObjectByType<PlayerPoints>();
+        
     }
 
     public void RemoveBoard()
@@ -34,7 +32,7 @@ public class Barrier : MonoBehaviour, IInteractable
         }
     }
 
-    public void RebuildBoard()
+    public void RebuildBoard(PlayerPoints playerPoints)
     {
         if (brokenBoards > 0)
         {
@@ -62,7 +60,7 @@ public class Barrier : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction playerInteraction)
     {
         if (brokenBoards > 0)
         {
@@ -71,11 +69,13 @@ public class Barrier : MonoBehaviour, IInteractable
         return "";
     }
 
-    public void Interact()
+    public void Interact(PlayerInteraction playerInteraction)
     {
+        PlayerPoints playerPoints = playerInteraction.GetComponent<PlayerPoints>();
+
         if (Time.time - lastRepairTime >= repairCooldown)
         {
-            RebuildBoard();
+            RebuildBoard(playerPoints);
             lastRepairTime = Time.time;
         }
     }

@@ -2,16 +2,17 @@ using UnityEngine;
 
 public class BuyableDoor : MonoBehaviour, IInteractable
 {
-    private PlayerPoints playerPoints;
-    public int price;
+    [SerializeField] private int price;
 
     void Start()
     {
-        playerPoints = FindFirstObjectByType<PlayerPoints>();
+        
     }
 
-    public void Interact()
+    public void Interact(PlayerInteraction playerInteraction)
     {
+        PlayerPoints playerPoints = playerInteraction.GetComponent<PlayerPoints>();
+
         if (playerPoints.points >= price)
         {
             playerPoints.RemovePoints(price);
@@ -19,7 +20,7 @@ public class BuyableDoor : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction playerInteraction)
     {
         return "Hold E to open Door [Cost: " + price + "]";
     }

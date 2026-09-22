@@ -4,17 +4,16 @@ public class CameraLook : MonoBehaviour
 {
     [Header("Settings")]
     [SerializeField] private Vector2 sensitivity = new Vector2(1f, 1f);
-    [SerializeField] private Vector2 yClamp = new Vector2(-60f, 60f);
+    [SerializeField] private Vector2 yClamp = new Vector2(-89f, 89f);
     [SerializeField] private bool smooth;
-    [SerializeField] private float interpolationSpeed = 25f;
+    [SerializeField] private float interpolationSpeed = 35f;
 
     private Character playerCharacter;
     private Rigidbody playerRigidbody;
 
-    private Quaternion targetCharacterRotation;
-    private Quaternion targetCameraRotation;
+    private float yaw;
+    private float pitch;
 
-    // Gets the Character and Rigidbody that this camera belongs to.
     private void Awake()
     {
         playerCharacter = GetComponentInParent<Character>();
@@ -25,69 +24,66 @@ public class CameraLook : MonoBehaviour
         }
     }
 
-    // Saves the starting player and camera rotations.
     private void Start()
     {
         if (playerCharacter != null)
         {
-            targetCharacterRotation = playerCharacter.transform.localRotation;
-            targetCameraRotation = transform.localRotation;
+            yaw = playerCharacter.transform.eulerAngles.y;
+
+            float startingPitch = transform.localEulerAngles.x;
+
+            if (startingPitch > 180f)
+            {
+                startingPitch -= 360f;
+            }
+
+            pitch = startingPitch;
         }
     }
 
-    // Reads look input and rotates the player left/right and the camera up/down.
     private void LateUpdate()
     {
-        if (playerCharacter != null && playerRigidbody != null)
+        if (playerCharacter == null || playerRigidbody == null)
         {
-            Vector2 input;
-
-            if (playerCharacter.IsCursorLocked())
-            {
-                input = playerCharacter.GetInputLook();
-            }
-            else
-            {
-                input = Vector2.zero;
-            }
-
-            input *= sensitivity;
-
-            Quaternion horizontalRotation = Quaternion.Euler(0f, input.x, 0f);
-            Quaternion verticalRotation = Quaternion.Euler(-input.y, 0f, 0f);
-
-            targetCharacterRotation *= horizontalRotation;
-            targetCameraRotation *= verticalRotation;
-            targetCameraRotation = ClampPitch(targetCameraRotation);
-
-            if (smooth)
-            {
-                transform.localRotation = Quaternion.Slerp(transform.localRotation, targetCameraRotation, Time.deltaTime * interpolationSpeed);
-
-                Quaternion smoothCharacterRotation = Quaternion.Slerp(playerRigidbody.rotation, targetCharacterRotation, Time.deltaTime * interpolationSpeed);
-                playerRigidbody.MoveRotation(smoothCharacterRotation);
-            }
-            else
-            {
-                transform.localRotation = targetCameraRotation;
-                playerRigidbody.MoveRotation(targetCharacterRotation);
-            }
+            return;
         }
-    }
 
-    // Limits how far the player can look up and down.
-    private Quaternion ClampPitch(Quaternion rotation)
-    {
-        rotation.x /= rotation.w;
-        rotation.y /= rotation.w;
-        rotation.z /= rotation.w;
-        rotation.w = 1f;
+        Vector2 input = Vector2.zero;
 
-        float pitch = 2f * Mathf.Rad2Deg * Mathf.Atan(rotation.x);
+        if (playerCharacter.IsCursorLocked())
+        {
+            input = playerCharacter.GetInputLook();
+        }
+
+        input *= sensitivity;
+
+        yaw += input.x;
+        pitch -= input.y;
         pitch = Mathf.Clamp(pitch, yClamp.x, yClamp.y);
 
-        rotation.x = Mathf.Tan(0.5f * Mathf.Deg2Rad * pitch);
+        Quaternion targetCharacterRotation = Quaternion.Euler(0f, yaw, 0f);
+        Quaternion targetCameraRotation = Quaternion.Euler(pitch, 0f, 0f);
 
-        return rotation;
+        if (smooth)
+        {
+            transform.localRotation = Quaternion.Slerp(
+                transform.localRotation,
+                targetCameraRotation,
+                Time.deltaTime * interpolationSpeed
+            );
+
+            Quaternion smoothCharacterRotation = Quaternion.Slerp(
+                playerRigidbody.rotation,
+                targetCharacterRotation,
+                Time.deltaTime * interpolationSpeed
+            );
+
+            playerRigidbody.MoveRotation(smoothCharacterRotation);
+        }
+        else
+        {
+            transform.localRotation = targetCameraRotation;
+            playerRigidbody.MoveRotation(targetCharacterRotation);
+        }
     }
 }

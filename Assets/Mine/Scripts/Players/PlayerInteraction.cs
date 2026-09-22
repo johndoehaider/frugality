@@ -55,7 +55,7 @@ public class PlayerInteraction : MonoBehaviour
 
                     if (interactable != null)
                     {
-                        interactable.Interact();
+                        interactable.Interact(this);
                     }
                 }
             }
@@ -69,7 +69,7 @@ public class PlayerInteraction : MonoBehaviour
 
                 else if (proximityInteractable != null)
                 {
-                    proximityInteractable.Interact();
+                    proximityInteractable.Interact(this);
 
                 }
             }
@@ -80,7 +80,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         while (holdingInteract && proximityInteractable != null)
         {
-            proximityInteractable.Interact();
+            proximityInteractable.Interact(this);
             yield return null;
         }
     }

@@ -4,9 +4,9 @@ using System.Collections;
 public class Enemy : MonoBehaviour
 {
 
-    [Header("Barrier Behavior")]
-    [SerializeField] private LayerMask playerLayer;
-    [SerializeField] private float barrierAttackRange = 2f;
+    // [Header("Barrier Behavior")]
+    // [SerializeField] private LayerMask playerLayer;
+    // [SerializeField] private float barrierAttackRange = 2f;
 
     [Header("Speeds")]
     [SerializeField] private float walkingSpeed = 1f;
@@ -15,14 +15,15 @@ public class Enemy : MonoBehaviour
 
     [Header("Health & Attack")]
     [SerializeField] private float attackCooldown = 3f;
-    [SerializeField] private float damage = 33f;
+    [SerializeField] private float damage = 60f;
     [SerializeField] private float health = 100f;
 
     private GameObject player;
-    private PlayerHealth playerHealth;
-    private PlayerPoints playerPoints;
     private Rigidbody enemyRb;
     private Animator animator;
+
+    private SpawnManager spawnManager;
+    private PowerUpManager powerupManager;
 
     private float [] speeds;
     private float currentSpeed;
@@ -39,8 +40,6 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
-        playerHealth = player.GetComponent<PlayerHealth>();
-        playerPoints = player.GetComponent<PlayerPoints>();
 
         enemyRb = GetComponent<Rigidbody>();
     }
@@ -69,6 +68,8 @@ public class Enemy : MonoBehaviour
         {
             if (collision.gameObject.CompareTag("Player"))
             {
+                PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
+                
                 if (Time.time - lastDamageTime >= attackCooldown)
                 {
                     animator.SetTrigger("Attack");
@@ -76,35 +77,10 @@ public class Enemy : MonoBehaviour
                     lastDamageTime = Time.time;
                 }
             }
-            else
-            {
-                Barrier barrier = collision.gameObject.GetComponentInParent<Barrier>();
-
-                if (barrier != null && !barrier.IsBroken())
-                {
-                    if (Time.time - lastDamageTime >= attackCooldown)
-                    {
-                        Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
-
-                        if (Physics.Raycast(transform.position, directionToPlayer, barrierAttackRange, playerLayer))
-                        {
-                            animator.SetTrigger("Attack");
-                            playerHealth.LoseHealth(33f);
-                        }
-                        else
-                        {
-                            animator.SetTrigger("Attack");
-                            barrier.RemoveBoard();
-                        }
-
-                        lastDamageTime = Time.time;
-                    }
-                }
-            }
         }
     }
 
-    public void LoseHealth (float amount)
+    public void LoseHealth (float amount, PlayerPoints playerPoints)
     {
         if (!isDead)
         {
@@ -114,6 +90,10 @@ public class Enemy : MonoBehaviour
                 Debug.Log("Enemy dead!");
                 playerPoints.AddPoints(50);
                 isDead = true;
+
+                spawnManager?.EnemyDied();
+                powerupManager?.TryDropPowerUp(transform.position);
+
                 StartCoroutine(DeathRoutine());
             }
             else
@@ -129,7 +109,8 @@ public class Enemy : MonoBehaviour
         animator.SetTrigger("Die");
         currentSpeed = 0f;
         GetComponent<Collider>().enabled = false;
-        yield return new WaitForSeconds(5f);
+
+        yield return new WaitForSeconds(20f);
         Destroy(gameObject);
     }
 
@@ -177,11 +158,94 @@ public class Enemy : MonoBehaviour
     public void RandomSpeedLateGame()
     {
         currentSpeed = speeds[Random.Range(1, 3)];
-        Runners();
+
+        if (currentSpeed == runningSpeed)
+        {
+            Runners();
+        }
+        else
+        {
+            Sprinters();
+        }
     }
 
     public void DogSpeed()
     {
         currentSpeed = runningSpeed;
+    }
+
+    public void SetSpawnManager(SpawnManager manager)
+    {
+        spawnManager = manager;
+    }
+
+    public void SetPowerUpManager(PowerUpManager manager)
+    {
+        powerupManager = manager;
+    }
+
+    public void SetHealthForRound(int round)
+    {
+        if (round <= 9)
+        {
+            health = 150f + (round - 1) * 100f;
+        }
+        else
+        {
+            health = 950f * Mathf.Pow(1.1f, round - 9);
+        }
+    }
+
+    public void SetSpeedForRound(int round)
+    {
+        if (round <= 3)
+        {
+            Walkers();
+        }
+        else if (round <= 10)
+        {
+            RandomSpeedEarlyGame();
+        }
+        else if (round <= 20)
+        {
+            Runners();
+        }
+        else
+        {
+            RandomSpeedLateGame();
+        }
+    }
+
+    public float GetEnemySpeed()
+    {
+        return currentSpeed;
+    }
+
+    public float GetEnemyHealth()
+    {
+        return health;
+    }
+
+    public void InstaKill()
+    {
+        health = 1;
+    }
+
+    public void EndInstaKill()
+    {
+        if (!isDead)
+        {
+            SetHealthForRound(spawnManager.GetRoundNumber());
+        }
+    }
+
+   public void Nuke()
+    {
+        if (!isDead)
+        {
+            isDead = true;
+            spawnManager?.EnemyDied();
+            StartCoroutine(DeathRoutine());
+        }
     }
 }

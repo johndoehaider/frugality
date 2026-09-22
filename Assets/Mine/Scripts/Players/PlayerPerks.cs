@@ -6,7 +6,6 @@ public class PlayerPerks : MonoBehaviour
     private List<PerkType> ownedPerks = new List<PerkType>();
     private HUDManager hudManager;
 
-    private GameObject player;
     private PlayerHealth playerHealth;
     private Inventory playerInventory;
     private Character playerCharacter;
@@ -15,12 +14,11 @@ public class PlayerPerks : MonoBehaviour
 
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        playerHealth = player.GetComponent<PlayerHealth>();
-        playerCharacter = player.GetComponent<Character>();
-        playerInventory = player.GetComponent<Inventory>();
+        playerHealth = GetComponent<PlayerHealth>();
+        playerCharacter = GetComponent<Character>();
+        playerInventory = GetComponent<Inventory>();
         equippedWeapon = playerCharacter.GetEquippedWeapon();
-        playerMovement = player.GetComponent<Movement>();
+        playerMovement = GetComponent<Movement>();
 
         hudManager = FindFirstObjectByType<HUDManager>();
     }

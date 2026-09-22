@@ -56,4 +56,17 @@ public class CharacterAnimationEventHandler : MonoBehaviour
     private void OnSlideBack(int back)
 	{
 	}
+
+    private void OnKnifeHit()
+    {
+        if (playerCharacter != null)
+            playerCharacter.KnifeHit();
+    }
+
+    private void OnAnimationEndedKnife()
+    {
+        if (playerCharacter != null)
+            playerCharacter.AnimationEndedKnife();
+    }
+    
 }

@@ -1,7 +1,7 @@
 public interface IInteractable
 {
-    void Interact();
-    string GetInteractionText();
+    void Interact(PlayerInteraction playerInteraction);
+    string GetInteractionText(PlayerInteraction playerInteraction);
     bool UsesContinuousInteract();
 
 }

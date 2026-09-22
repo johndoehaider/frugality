@@ -17,7 +17,7 @@ public class PowerSwitch : MonoBehaviour, IInteractable
         
     }
 
-    public void Interact()
+    public void Interact(PlayerInteraction playerInteraction)
     {
         if (!powerManager.IsPowerOn())
         {
@@ -25,7 +25,7 @@ public class PowerSwitch : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction playerInteraction)
     {
         if (!powerManager.IsPowerOn())
         {

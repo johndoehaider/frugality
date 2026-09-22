@@ -5,17 +5,16 @@ public class PerkMachine : MonoBehaviour, IInteractable
     [SerializeField] private PerkData perk;
     [SerializeField] private PowerManager powerManager;
 
-    private PlayerPoints playerPoints;
-    private PlayerPerks playerPerks;
-
     private void Start()
     {
-        playerPoints = FindFirstObjectByType<PlayerPoints>();
-        playerPerks = FindFirstObjectByType<PlayerPerks>();
+        
     }
 
-    public void Interact()
+    public void Interact(PlayerInteraction playerInteraction)
     {
+        PlayerPoints playerPoints = playerInteraction.GetComponent<PlayerPoints>();
+        PlayerPerks playerPerks = playerInteraction.GetComponent<PlayerPerks>();
+
         if (!powerManager.IsPowerOn())
         {
             return;
@@ -33,8 +32,10 @@ public class PerkMachine : MonoBehaviour, IInteractable
         }
     }
 
-    public string GetInteractionText()
+    public string GetInteractionText(PlayerInteraction playerInteraction)
     {
+        PlayerPerks playerPerks = playerInteraction.GetComponent<PlayerPerks>();
+
         if (!powerManager.IsPowerOn())
         {
             return "You must turn on the power first!";

@@ -70,7 +70,7 @@
                     "name": "Jump",
                     "type": "Button",
                     "id": "6bf74daf-8a98-48de-b071-9a4f6efdc3f3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false,
@@ -127,49 +127,19 @@
                     "priority": 0
                 },
                 {
-                    "name": "Time Speed Up",
-                    "type": "Button",
-                    "id": "418359b7-9253-4bb8-a363-e1fb23da7133",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Time Speed Down",
-                    "type": "Button",
-                    "id": "e3ef7edf-7ab7-43b4-8fdc-67547435a45b",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Time Speed Toggle",
-                    "type": "Button",
-                    "id": "bfdda7d2-cee8-4cb7-91a0-f3d4411e7f97",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
-                    "name": "Tutorial",
-                    "type": "Button",
-                    "id": "207fb2a2-8add-4ddb-bda7-c1887aeb313a",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "Hold",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
                     "name": "Interact",
                     "type": "Button",
                     "id": "88ca9c98-38a5-4651-9dee-a352d1ec7d6a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "Melee",
+                    "type": "Button",
+                    "id": "6b3f8224-9d9e-4858-91bb-ac245c309775",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -356,50 +326,6 @@
                 },
                 {
                     "name": "",
-                    "id": "8a482ba6-21ca-4c8f-9727-9fbb2368f00f",
-                    "path": "<Keyboard>/9",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Speed Up",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5e79e440-5045-4bbc-a8a7-30167589d397",
-                    "path": "<Gamepad>/dpad/up",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Speed Up",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "83f69484-fcc2-48ee-8c04-6c5d1e4f6e60",
-                    "path": "<Keyboard>/8",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Speed Down",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "65c0a406-e8d6-434f-aeff-75269e0cbaaa",
-                    "path": "<Gamepad>/dpad/down",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Speed Down",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "64767df0-dd96-438b-878e-fe24248339dd",
                     "path": "<Keyboard>/q",
                     "interactions": "",
@@ -417,17 +343,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Inventory Next",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7bfee678-d7c2-4845-b78a-7b0479dbb478",
-                    "path": "<Keyboard>/5",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Time Speed Toggle",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -521,34 +436,56 @@
                 },
                 {
                     "name": "",
-                    "id": "e2c127bc-a838-4782-a49c-063fa51f1d76",
-                    "path": "<Keyboard>/tab",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Tutorial",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "6a9054cd-1ecc-4095-a089-d0e32b67ab2c",
-                    "path": "<Gamepad>/select",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Tutorial",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "0f2e1797-f3e6-4940-a55c-494ff1920be0",
                     "path": "<Keyboard>/e",
-                    "interactions": "Hold",
+                    "interactions": "Hold(duration=0.2,pressPoint=0.3)",
                     "processors": "",
                     "groups": "",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7d13245c-c9c3-4272-9b81-e7f40dee0d70",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9fca817b-1ba7-4472-adbe-b5d8eaa97b0d",
+                    "path": "<Mouse>/middleButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Melee",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5148361-6747-487b-8e77-0a61769752e0",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Melee",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7afb7ebd-10bf-45cd-8e30-e53596d3de1c",
+                    "path": "<Gamepad>/rightStickPress",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Melee",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
