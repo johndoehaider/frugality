@@ -9,7 +9,7 @@ public enum PerkType
     QuickRevive
 }
 
-[CreateAssetMenu(fileName = "NewPerk", menuName = "Zombies/Perk")]
+[CreateAssetMenu(fileName = "NewPerk", menuName = "Frugality/Perk")]
 public class PerkData : ScriptableObject
 {
     public string perkName;

@@ -25,6 +25,9 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private Image crosshairImage;
     [SerializeField] private float crosshairTransitionSpeed = 10f;
 
+    [Header("Settings")]
+    [SerializeField] private float promptDistance = 2f;
+
     public TextMeshProUGUI pointsText;
     public TextMeshProUGUI healthText;
     public TextMeshProUGUI ammoText;
@@ -111,7 +114,7 @@ public class HUDManager : MonoBehaviour
         RaycastHit hit;
         if (!playerInteraction.GetProximity())
         {
-            if (Physics.SphereCast(mainCamera.transform.position, 0.25f, mainCamera.transform.forward, out hit, 2f))
+            if (Physics.SphereCast(mainCamera.transform.position, 0.25f, mainCamera.transform.forward, out hit, promptDistance))
             {
                 IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
                 if (interactable != null)

@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40a69366b70f19f4ba958674d45d45b0, type: 3}
+  m_Name: DefaultZombieBehavior
+  m_EditorClassIdentifier: Assembly-CSharp::ZombieBehaviorData
+  minTargetRefreshTime: 1
+  maxTargetRefreshTime: 3
+  pathRefreshInterval: 0.1
+  acceleration: 12
+  angularSpeed: 720
+  attackRange: 1.5
+  stoppingDistance: 0.8

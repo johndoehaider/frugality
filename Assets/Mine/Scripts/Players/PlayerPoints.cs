@@ -44,7 +44,9 @@ public class PlayerPoints : MonoBehaviour
         OnPointsEarned?.Invoke(this, amount);
 
         if (hudManager != null)
+        {
             hudManager.UpdatePoints(points);
+        }
     }
 
     // Removes points and updates the HUD.
@@ -53,7 +55,9 @@ public class PlayerPoints : MonoBehaviour
         points -= amount;
 
         if (hudManager != null)
+        {
             hudManager.UpdatePoints(points);
+        }
     }
 
     // Returns whether the player currently has at least the requested amount of points.

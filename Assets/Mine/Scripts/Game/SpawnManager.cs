@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
 using System;
 
@@ -15,6 +14,7 @@ public class SpawnManager : MonoBehaviour
 
     private HUDManager hudManager;
     private PowerUpManager powerupManager;
+    private GameManager gameManager;
 
     private int roundNumber = 0;
     private int [] spawnAmounts = {6, 8, 13, 18};
@@ -30,10 +30,11 @@ public class SpawnManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        gameManager = FindFirstObjectByType<GameManager>();
         powerupManager = FindFirstObjectByType<PowerUpManager>();
         hudManager = FindFirstObjectByType<HUDManager>();
 
-        Invoke ("SpawnEnemies", 5f);
+        Invoke(nameof(SpawnEnemies), 5f);
     }
 
     // Update is called once per frame
@@ -42,7 +43,7 @@ public class SpawnManager : MonoBehaviour
         if (enemiesAlive == 0 && !waitingForNextRound && !isSpawning)
         {
             waitingForNextRound = true;
-            Invoke ("SpawnEnemies", 5f);
+            Invoke(nameof(SpawnEnemies), 5f);
         }
     }
 
@@ -94,10 +95,14 @@ public class SpawnManager : MonoBehaviour
                 GameObject enemy = Instantiate(enemyPrefabs[randomIndex], spawnPoints[randomSpawnPoint].transform.position, enemyPrefabs[randomIndex].transform.rotation);
 
                 Enemy enemyScript = enemy.GetComponent<Enemy>();
+                EnemyTargeting enemyTargeting = enemy.GetComponent<EnemyTargeting>();
+
+                enemyTargeting.SetGameManager(gameManager);
                 enemyScript.SetSpawnManager(this);
                 enemyScript.SetPowerUpManager(powerupManager);
                 enemyScript.SetHealthForRound(roundNumber);
                 enemyScript.SetSpeedForRound(roundNumber);
+
 
                 if (instaKillActive)
                 {
@@ -127,7 +132,9 @@ public class SpawnManager : MonoBehaviour
             GameObject boss = Instantiate(bossPrefab, spawnPoints[randomSpawnPoint].transform.position, bossPrefab.transform.rotation);
             
             Enemy bossScript = boss.GetComponent<Enemy>();
+            EnemyTargeting bossTargeting = boss.GetComponent<EnemyTargeting>();
 
+            bossTargeting.SetGameManager(gameManager);
             bossScript.SetSpawnManager(this);
             bossScript.DogSpeed();
 

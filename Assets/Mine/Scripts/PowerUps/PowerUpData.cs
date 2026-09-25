@@ -9,7 +9,7 @@ public enum PowerUpType
     Carpenter
 }
 
-[CreateAssetMenu(fileName = "NewPowerUp", menuName = "Zombies/Power Up")]
+[CreateAssetMenu(fileName = "NewPowerUp", menuName = "Frugality/Power Up")]
 public class PowerUpData : ScriptableObject
 {
     public string powerUpName;

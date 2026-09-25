@@ -10,6 +10,8 @@ public class PlayerHealth : MonoBehaviour
     private float lastDamageTime;
     private HUDManager hudManager;
 
+    private bool isDead;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -37,6 +39,7 @@ public class PlayerHealth : MonoBehaviour
         if (currentHealth <= 0f)
         {
             currentHealth = 0f;
+            isDead = true;
             Debug.Log("Game Over!");
         }
     }
@@ -44,17 +47,20 @@ public class PlayerHealth : MonoBehaviour
     // Regenerates health after the player has gone long enough without taking damage.
     private void HealPlayer()
     {
-        if (currentHealth >= maxHealth)
-            return;
+        if (!isDead)
+        {
+            if (currentHealth >= maxHealth)
+                return;         
 
-        if (Time.time - lastDamageTime < healDelay)
-            return;
+            if (Time.time - lastDamageTime < healDelay)
+                return;
 
-        currentHealth += healSpeed * Time.deltaTime;
-        currentHealth = Mathf.Min(currentHealth, maxHealth);
+            currentHealth += healSpeed * Time.deltaTime;
+            currentHealth = Mathf.Min(currentHealth, maxHealth);
 
-        if (hudManager != null)
-            hudManager.UpdateHealth(currentHealth);
+            if (hudManager != null)
+                hudManager.UpdateHealth(currentHealth);
+        }
     }
 
     public float GetCurrentHealth()
@@ -69,5 +75,10 @@ public class PlayerHealth : MonoBehaviour
 
         if (hudManager != null)
             hudManager.UpdateHealth(currentHealth);
+    }
+
+    public bool IsDead()
+    {
+        return isDead;
     }
 }

@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 8267474279603872791}
   - component: {fileID: 4846085143323540255}
   - component: {fileID: 3660884858303761971}
+  - component: {fileID: 8754785719014725671}
+  - component: {fileID: 1389549200978317054}
+  - component: {fileID: 7512251388731555011}
   m_Layer: 8
   m_Name: Zombie Root
   m_TagString: Enemy
@@ -81,7 +84,7 @@ Rigidbody:
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
   m_UseGravity: 1
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -97,16 +100,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d4496a0aaa3d424f85b30f96260df22, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  barrierAttackRange: 2
+  behaviorData: {fileID: 11400000, guid: a960edf4ae3cb514782e2f62ad96425f, type: 2}
   walkingSpeed: 1
   runningSpeed: 3
   sprintingSpeed: 6
-  attackCooldown: 3
   damage: 60
   health: 100
+--- !u!114 &8754785719014725671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616832352541028851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9be340825d9d6d24898ca4985adc5d03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyTargeting
+  behaviorData: {fileID: 11400000, guid: a960edf4ae3cb514782e2f62ad96425f, type: 2}
+--- !u!114 &1389549200978317054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616832352541028851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: efae44f7c19b86c46bd1704611fa2a88, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyNavigation
+  behaviorData: {fileID: 11400000, guid: a960edf4ae3cb514782e2f62ad96425f, type: 2}
+--- !u!195 &7512251388731555011
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616832352541028851}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 1
 --- !u!1001 &2647031172126221183
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -162,8 +209,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3493963309712399976, guid: bcfc4f345fbbe3f47b0a022efff9299d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2905168700851622354}
   m_SourcePrefab: {fileID: 100100000, guid: bcfc4f345fbbe3f47b0a022efff9299d, type: 3}
+--- !u!1 &1495522515439582487 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3493963309712399976, guid: bcfc4f345fbbe3f47b0a022efff9299d, type: 3}
+  m_PrefabInstance: {fileID: 2647031172126221183}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2905168700851622354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1495522515439582487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb34e9cc5276e2449a636eca662c6fbe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAnimationEventHandler
 --- !u!4 &7356446129791662469 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4804069856963943162, guid: bcfc4f345fbbe3f47b0a022efff9299d, type: 3}

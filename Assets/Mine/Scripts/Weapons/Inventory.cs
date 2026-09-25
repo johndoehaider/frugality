@@ -1,19 +1,23 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour
 {
-    private Weapon[] weapons;
+    private List<Weapon> currentWeapons = new List<Weapon>();
     private Weapon equippedWeapon;
+
     private int equippedIndex = -1;
+    private int weaponCapacity = 2;
 
     // Finds every Weapon under this Inventory, disables them, and equips the starting weapon.
-    public void Init(int equippedAtStart = 1)
+    public void Init(int equippedAtStart = 0)
     {
-        weapons = GetComponentsInChildren<Weapon>(true);
+        Weapon[] startingWeapons = GetComponentsInChildren<Weapon>(true);
 
-        foreach (Weapon weapon in weapons)
+        foreach (Weapon weapon in startingWeapons)
         {
-            weapon.gameObject.SetActive(false);
+            currentWeapons.Add(weapon);
+            weapon.gameObject.SetActive(false);        
         }
 
         Equip(equippedAtStart);
@@ -22,11 +26,11 @@ public class Inventory : MonoBehaviour
     // Disables the currently equipped weapon and enables the requested weapon.
     public Weapon Equip(int newWeaponIndex)
     {
-        if (weapons != null && weapons.Length > 0)
+        if (currentWeapons != null && currentWeapons.Count > 0)
         {
-            if (newWeaponIndex >= 0 && newWeaponIndex < weapons.Length)
+            if (newWeaponIndex >= 0 && newWeaponIndex < currentWeapons.Count)
             {
-                if (equippedIndex != newWeaponIndex)
+                if (equippedWeapon != currentWeapons[newWeaponIndex])
                 {
                     if (equippedWeapon != null)
                     {
@@ -34,13 +38,64 @@ public class Inventory : MonoBehaviour
                     }
 
                     equippedIndex = newWeaponIndex;
-                    equippedWeapon = weapons[equippedIndex];
+                    equippedWeapon = currentWeapons[equippedIndex];
                     equippedWeapon.gameObject.SetActive(true);
                 }
             }
         }
 
         return equippedWeapon;
+    }
+
+    // Add this weapon if I have an available weapon slot and tell me its index.
+    public int AcquireWeapon(Weapon weaponPrefab)
+    {
+        if (currentWeapons.Count >= weaponCapacity)
+        {
+            return -1;
+        }
+
+        Weapon newWeapon = Instantiate(weaponPrefab, transform);
+
+        currentWeapons.Add(newWeapon);
+
+        return currentWeapons.Count - 1;
+    }
+
+    // Replace whatever currently occupies my equipped slot.
+    public int ReplaceEquippedWeapon(Weapon weaponPrefab)
+    {
+        Destroy(equippedWeapon.gameObject);
+        equippedWeapon = null;
+
+        Weapon newWeapon = Instantiate(weaponPrefab, transform);
+
+        currentWeapons[equippedIndex] = newWeapon;
+
+        return equippedIndex;
+    }
+
+    public Weapon CheckWeaponOwnership(string weaponName)
+    {
+        foreach (Weapon weapon in currentWeapons)
+        {
+            if (weapon.GetWeaponName() == weaponName)
+            {
+                return weapon;
+            }
+        }
+        
+        return null;
+    }
+
+    
+    public void MaxAmmo()
+    {
+        foreach (Weapon weapon in currentWeapons)
+        {
+            weapon.MaxAmmo();
+        }
+
     }
 
     // Returns the previous weapon index and wraps back to the final weapon when needed.
@@ -50,7 +105,7 @@ public class Inventory : MonoBehaviour
 
         if (newIndex < 0)
         {
-            newIndex = weapons.Length - 1;
+            newIndex = currentWeapons.Count - 1;
         }
 
         return newIndex;
@@ -61,7 +116,7 @@ public class Inventory : MonoBehaviour
     {
         int newIndex = equippedIndex + 1;
 
-        if (newIndex >= weapons.Length)
+        if (newIndex >= currentWeapons.Count)
         {
             newIndex = 0;
         }
@@ -79,5 +134,10 @@ public class Inventory : MonoBehaviour
     public int GetEquippedIndex()
     {
         return equippedIndex;
+    }
+
+    public bool HasWeaponSpace()
+    {
+        return currentWeapons.Count < weaponCapacity;
     }
 }

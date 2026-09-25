@@ -5,11 +5,6 @@ public class PerkMachine : MonoBehaviour, IInteractable
     [SerializeField] private PerkData perk;
     [SerializeField] private PowerManager powerManager;
 
-    private void Start()
-    {
-        
-    }
-
     public void Interact(PlayerInteraction playerInteraction)
     {
         PlayerPoints playerPoints = playerInteraction.GetComponent<PlayerPoints>();

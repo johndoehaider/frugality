@@ -3,9 +3,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 // RequireComponent makes Unity keep CharacterKinematics on the same GameObject as Character.
-[RequireComponent(typeof(CharacterKinematics))]
+[RequireComponent(typeof(CharacterKinematics), typeof(PlayerKnife))]
 public class Character : MonoBehaviour
 {
+    #region References
+    
     [Header("Inventory")]
     [SerializeField] private Inventory inventory;
 
@@ -21,19 +23,10 @@ public class Character : MonoBehaviour
     [SerializeField] private AudioSource weaponAudioSource;
     [SerializeField] private AudioSource reloadAudioSource;
 
-    [Header("Knife")]
-    [SerializeField] private GameObject knifeObject;
-    [SerializeField] private Transform realRightHandBone; 
-    [SerializeField] private float knifeDamage = 150f;
-    [SerializeField] private float knifeRange = 2f;
-    [SerializeField] private float knifeRadius = 0.25f;
-    [SerializeField] private LayerMask enemyLayer;
 
-    [Header("Knife Audio")]
-    [SerializeField] private AudioClip knifeWhoosh;
-    [SerializeField] private AudioClip knifeSwing1;
-    [SerializeField] private AudioClip knifeSwing2;
-    [SerializeField] private AudioClip knifeKillSound;
+    // =========================
+    // STATE
+    // =========================
 
     private bool aiming;
     private bool running;
@@ -56,20 +49,31 @@ public class Character : MonoBehaviour
     private float damageMulti = 1f;
     private float rpmMulti = 1f;
 
-    private int layerOverlay;
-    private int layerHolster;
-    private int layerActions;
-
     private Vector2 lookInput;
     private Vector2 movementInput;
 
+
+    // =========================
+    // CACHED REFERENCES
+    // =========================
+
     private CharacterKinematics characterKinematics;
+    private PlayerKnife playerKnife;
     private PlayerPoints playerPoints;
     private Movement movement;
     private Weapon equippedWeapon;
     private Scope equippedWeaponScope;
     private Magazine equippedWeaponMagazine;
-    private GameObject equippedWeaponClone;
+    private GameManager gameManager;
+
+
+    // =========================
+    // ANIMATION DATA
+    // =========================
+
+    private int layerOverlay;
+    private int layerHolster;
+    private int layerActions;
 
     // Animator hashes let us refer to Animator parameters with an int instead of repeatedly using strings.
     private static readonly int HashAiming = Animator.StringToHash("Aiming");
@@ -78,6 +82,15 @@ public class Character : MonoBehaviour
     private static readonly int HashRunning = Animator.StringToHash("Running");
     private static readonly int HashHolstered = Animator.StringToHash("Holstered");
     private static readonly int HashKnife = Animator.StringToHash("Knife");
+
+
+    // =========================
+    // UNITY LIFECYCLE
+    // =========================
+
+    #endregion
+
+    #region Unity Lifecycle
 
     // Sets up the cursor, gets the IK component, initializes the inventory, and loads the starting weapon.
     private void Awake()
@@ -88,9 +101,16 @@ public class Character : MonoBehaviour
         characterKinematics = GetComponent<CharacterKinematics>();
         playerPoints = GetComponent<PlayerPoints>();
         movement = GetComponent<Movement>();
+        playerKnife = GetComponent<PlayerKnife>();
 
         inventory.Init();
         RefreshWeaponSetup();
+
+        gameManager = FindFirstObjectByType<GameManager>();
+        if (gameManager != null)
+        {
+            gameManager.RegisterPlayer(this);
+        }
     }
 
     // Gets the Animator layer indexes once so we can use them later when playing animations.
@@ -119,6 +139,18 @@ public class Character : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (gameManager != null)
+        {
+            gameManager.UnregisterPlayer(this);
+        }
+    }
+
+    #endregion
+
+    #region State Updates
+
     // Updates whether the player is currently allowed to aim.
     private void UpdateAimingState()
     {
@@ -145,6 +177,10 @@ public class Character : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Player Actions
+
     // Repeatedly fires an automatic weapon while the fire button is being held.
     private void HandleAutomaticFire()
     {
@@ -162,119 +198,6 @@ public class Character : MonoBehaviour
         }
     }
 
-    // Returns the world camera used by the player.
-    public Camera GetCameraWorld()
-    {
-        return cameraWorld;
-    }
-
-    // Returns the player's inventory.
-    public Inventory GetInventory()
-    {
-        return inventory;
-    }
-
-    // Returns the player's currently equipped weapon.
-    public Weapon GetEquippedWeapon()
-    {
-        return equippedWeapon;
-    }
-
-    public float GetReloadSpeed()
-    {
-        return reloadSpeed;
-    }
-
-    public AudioSource GetWeaponAudioSource()
-    {
-        return weaponAudioSource;
-    }
-
-    public AudioSource GetReloadAudioSource()
-    {
-        return reloadAudioSource;
-    }
-
-    // Returns whether the crosshair should currently be visible.
-    public bool IsCrosshairVisible()
-    {
-        if (!aiming && !holstered && !knifing)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    // Returns whether the player is currently running.
-    public bool IsRunning()
-    {
-        return running;
-    }
-
-    // Returns whether the player is currently aiming.
-    public bool IsAiming()
-    {
-        return aiming;
-    }
-
-    // Returns whether the cursor is currently locked for gameplay.
-    public bool IsCursorLocked()
-    {
-        return cursorLocked;
-    }
-
-    // Returns whether the tutorial UI should be shown.
-    public bool IsTutorialTextVisible()
-    {
-        return tutorialTextVisible;
-    }
-
-    // Returns the latest movement input received from the Input System.
-    public Vector2 GetInputMovement()
-    {
-        return movementInput;
-    }
-
-    // Returns the latest look input received from the Input System.
-    public Vector2 GetInputLook()
-    {
-        return lookInput;
-    }
-
-    // Sends the player's current movement, aim, and running values to the Animator.
-    private void UpdateAnimator()
-    {
-        float movementAmount = Mathf.Clamp01(Mathf.Abs(movementInput.x) + Mathf.Abs(movementInput.y));
-
-        characterAnimator.SetFloat(HashMovement, movementAmount, dampTimeLocomotion, Time.deltaTime);
-
-        float aimingValue;
-
-        if (aiming)
-        {
-            aimingValue = 1f;
-        }
-        else
-        {
-            aimingValue = 0f;
-        }
-
-        characterAnimator.SetFloat(HashAiming, aimingValue, 0.25f * dampTimeAiming, Time.deltaTime);
-        characterAnimator.SetBool(HashAim, aiming);
-        characterAnimator.SetBool(HashRunning, running);
-    }
-
-
-    // Starts the weapon inspect animation and marks the character as inspecting.
-    private void Inspect()
-    {
-        inspecting = true;
-        characterAnimator.CrossFade("Inspect", 0f, layerActions, 0f);
-    }
-
     // Fires the equipped weapon, records the shot time, and plays the character fire animation.
     private void Fire()
     {
@@ -286,100 +209,30 @@ public class Character : MonoBehaviour
         }
     }
 
+    // Plays the empty-trigger animation and still applies the weapon's fire-rate delay.
+    private void FireEmpty()
+    {
+        lastShotTime = Time.time;
+        characterAnimator.CrossFade("Fire Empty", 0.05f, layerOverlay, 0f);
+    }
+
     private void Knife()
     {
         knifing = true;
         aiming = false;
-        
+
         CancelReloadAnimation(); 
 
-        // 1. Hide the real weapon so it doesn't float in your face
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.gameObject.SetActive(false);
+        playerKnife.StartKnife(equippedWeapon);
 
-            // 2. Clone the equipped weapon and glue it directly to the true right hand bone
-            if (realRightHandBone != null)
-            {
-                equippedWeaponClone = Instantiate(equippedWeapon.gameObject, realRightHandBone);
-                equippedWeaponClone.name = equippedWeapon.gameObject.name;
-
-                equippedWeaponClone.SetActive(true);
-
-                equippedWeaponClone.transform.localPosition = new Vector3(0.1517f, -0.0533f, -0.0232f);
-                equippedWeaponClone.transform.localRotation = Quaternion.Euler(16.122f, 113.661f, 103.924f);
-                equippedWeaponClone.transform.localScale = Vector3.one;
-                
-                SetLayerRecursively(equippedWeaponClone, 31); 
-                if (equippedWeaponClone.TryGetComponent(out Weapon weaponScript)) Destroy(weaponScript);
-                if (equippedWeaponClone.TryGetComponent(out WeaponAttachmentManager attachManager)) Destroy(attachManager);
-                if (equippedWeaponClone.TryGetComponent(out WeaponAnimationEventHandler eventHandler)) Destroy(eventHandler);
-                if (equippedWeaponClone.TryGetComponent(out Animator cloneAnimator)) Destroy(cloneAnimator);
-            }
-        }
-
-        knifeObject.SetActive(true);
         characterAnimator.SetTrigger(HashKnife);
     }
 
-    public void KnifeHit()
+    // Starts the weapon inspect animation and marks the character as inspecting.
+    private void Inspect()
     {
-        if (Physics.SphereCast(
-            cameraWorld.transform.position, knifeRadius, cameraWorld.transform.forward,
-            out RaycastHit hit, knifeRange, enemyLayer, QueryTriggerInteraction.Ignore))
-        {
-            Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
-
-            if (enemy != null)
-            {
-                bool killingBlow = enemy.GetEnemyHealth() <= knifeDamage;
-                enemy.LoseHealth(knifeDamage, playerPoints);
-
-                if (killingBlow)
-                {
-                    weaponAudioSource.PlayOneShot(knifeKillSound);
-                    playerPoints.AddPoints(80);
-                }
-                else
-                {
-                    AudioClip slashSound;
-
-                    if (Random.Range(0, 2) == 0)
-                    {
-                        slashSound = knifeSwing1;
-                    }
-                    else
-                    {
-                        slashSound = knifeSwing2;
-                    }
-
-                    weaponAudioSource.PlayOneShot(slashSound);
-                }
-
-                return;
-            }
-        }
-        weaponAudioSource.PlayOneShot(knifeWhoosh);
-    }
-
-    public void AnimationEndedKnife()
-    {
-        knifeObject.SetActive(false);
-
-        if (equippedWeaponClone != null)
-        {
-            Destroy(equippedWeaponClone);
-        }
-        if (equippedWeapon != null)
-        {
-            equippedWeapon.gameObject.SetActive(true);
-        }
-
-        knifing = false;
-
-        UpdateAimingState(); 
-        UpdateAnimator();
-
+        inspecting = true;
+        characterAnimator.CrossFade("Inspect", 0f, layerActions, 0f);
     }
 
     // Chooses the correct reload animation, marks the player as reloading, and tells the weapon to reload.
@@ -404,7 +257,7 @@ public class Character : MonoBehaviour
                 reloading = true;
                 equippedWeapon.ReloadAnimation();
             }
-            
+
             // Play can't reload sound effect
             else if (equippedWeapon.GetAmmunitionReserved() <= 0)
             {
@@ -429,6 +282,97 @@ public class Character : MonoBehaviour
         }
     }
 
+    // A coroutine lets the weapon switch wait until the holster animation finishes before equipping the new weapon.
+    private IEnumerator Equip(int newWeaponIndex)
+    {
+        if (!holstered)
+        {
+            holstering = true;
+            SetHolstered(true);
+
+            // WaitUntil pauses this coroutine until holstering becomes false.
+            yield return new WaitUntil(() => holstering == false);
+        }
+
+        SetHolstered(false);
+        characterAnimator.Play("Unholster", layerHolster, 0f);
+
+        inventory.Equip(newWeaponIndex);
+        RefreshWeaponSetup();
+    }
+
+    public bool AcquireWeapon(Weapon weaponPrefab)
+    {
+        if (CanChangeWeapon())
+        {
+            StartCoroutine(AcquireWeaponRoutine(weaponPrefab));
+            return true;
+        }
+
+        return false;
+    }
+
+    private IEnumerator AcquireWeaponRoutine(Weapon weaponPrefab)
+    {
+        if (!holstered)
+        {
+            holstering = true;
+            SetHolstered(true);
+
+            yield return new WaitUntil(() => holstering == false);
+        }
+
+        int newWeaponIndex;
+
+        if (inventory.HasWeaponSpace())
+        {
+            newWeaponIndex = inventory.AcquireWeapon(weaponPrefab);
+        }
+        else
+        {
+            newWeaponIndex = inventory.ReplaceEquippedWeapon(weaponPrefab);
+        }
+
+        inventory.Equip(newWeaponIndex);
+        RefreshWeaponSetup();
+
+        SetHolstered(false);
+        characterAnimator.Play("Unholster", layerHolster, 0f);
+    }
+
+    // Changes the holstered state and sends the same value to the Animator.
+    private void SetHolstered(bool value)
+    {
+        holstered = value;
+        characterAnimator.SetBool(HashHolstered, holstered);
+    }
+
+    #endregion
+
+    #region Weapon Setup / Modifiers
+
+    // Updates Character's weapon-related references after the equipped weapon changes.
+    private void RefreshWeaponSetup()
+    {
+        equippedWeapon = inventory.GetEquipped();
+
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.ApplySpeedCola(reloadSpeed);
+            equippedWeapon.ApplyDoubleTap(damageMulti, rpmMulti);
+
+            characterAnimator.runtimeAnimatorController = equippedWeapon.GetAnimatorController();
+
+            WeaponAttachmentManager attachmentManager = equippedWeapon.GetAttachmentManager();
+
+            if (attachmentManager != null)
+            {
+                equippedWeaponScope = attachmentManager.GetEquippedScope();
+                equippedWeaponMagazine = attachmentManager.GetEquippedMagazine();
+            }
+        }
+    }
+
     public void ApplySpeedCola(float speed)
     {
         reloadSpeed = speed;
@@ -450,74 +394,17 @@ public class Character : MonoBehaviour
         }
     }
 
-    // A coroutine lets the weapon switch wait until the holster animation finishes before equipping the new weapon.
-    private IEnumerator Equip(int newWeaponIndex)
+    public void MaxAmmo()
     {
-        if (!holstered)
+        if (inventory != null)
         {
-            holstering = true;
-            SetHolstered(true);
-
-            // WaitUntil pauses this coroutine until holstering becomes false.
-            yield return new WaitUntil(() => holstering == false);
-        }
-
-        SetHolstered(false);
-        characterAnimator.Play("Unholster", layerHolster, 0f);
-
-        inventory.Equip(newWeaponIndex);
-        RefreshWeaponSetup();
-    }
-
-    // Updates Character's weapon-related references after the equipped weapon changes.
-    private void RefreshWeaponSetup()
-    {
-        equippedWeapon = inventory.GetEquipped();
-        equippedWeapon.ApplySpeedCola(reloadSpeed);
-        equippedWeapon.ApplyDoubleTap(damageMulti, rpmMulti);
-
-        if (equippedWeapon != null)
-        {
-            characterAnimator.runtimeAnimatorController = equippedWeapon.GetAnimatorController();
-
-            WeaponAttachmentManager attachmentManager = equippedWeapon.GetAttachmentManager();
-
-            if (attachmentManager != null)
-            {
-                equippedWeaponScope = attachmentManager.GetEquippedScope();
-                equippedWeaponMagazine = attachmentManager.GetEquippedMagazine();
-            }
+            inventory.MaxAmmo();
         }
     }
 
-    // Plays the empty-trigger animation and still applies the weapon's fire-rate delay.
-    private void FireEmpty()
-    {
-        lastShotTime = Time.time;
-        characterAnimator.CrossFade("Fire Empty", 0.05f, layerOverlay, 0f);
-    }
+    #endregion
 
-    // Applies the current cursor lock state to Unity's cursor.
-    private void UpdateCursorState()
-    {
-        if (cursorLocked)
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-    }
-
-    // Changes the holstered state and sends the same value to the Animator.
-    private void SetHolstered(bool value)
-    {
-        holstered = value;
-        characterAnimator.SetBool(HashHolstered, holstered);
-    }
+    #region "Can" Rules
 
     // Returns whether firing is allowed in the player's current state.
     private bool CanPlayAnimationFire()
@@ -643,17 +530,104 @@ public class Character : MonoBehaviour
         return true;
     }
 
-    private void SetLayerRecursively(GameObject obj, int newLayer)
+    #endregion
+
+    #region Animation
+
+    // Sends the player's current movement, aim, and running values to the Animator.
+    private void UpdateAnimator()
     {
-        if (obj == null) return;
-        
-        obj.layer = newLayer; // Changes the current object's layer
-        
-        foreach (Transform child in obj.transform)
+        float movementAmount = Mathf.Clamp01(Mathf.Abs(movementInput.x) + Mathf.Abs(movementInput.y));
+
+        characterAnimator.SetFloat(HashMovement, movementAmount, dampTimeLocomotion, Time.deltaTime);
+
+        float aimingValue;
+
+        if (aiming)
         {
-            SetLayerRecursively(child.gameObject, newLayer); // Changes the child's layer too
+            aimingValue = 1f;
+        }
+        else
+        {
+            aimingValue = 0f;
+        }
+
+        characterAnimator.SetFloat(HashAiming, aimingValue, 0.25f * dampTimeAiming, Time.deltaTime);
+        characterAnimator.SetBool(HashAim, aiming);
+        characterAnimator.SetBool(HashRunning, running);
+    }
+
+    public void KnifeHit()
+    {
+        playerKnife.KnifeHit(cameraWorld);
+    }
+
+    public void AnimationEndedKnife()
+    {
+        playerKnife.EndKnife(equippedWeapon);
+
+        knifing = false;
+
+        UpdateAimingState(); 
+        UpdateAnimator();
+
+    }
+
+    // Called by an animation event to tell the equipped weapon to eject a casing.
+    public void EjectCasing()
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.EjectCasing();
         }
     }
+
+    // Called by an animation event to transfer ammunition into the equipped weapon.
+    public void FillAmmunition()
+    {
+        if (equippedWeapon != null)
+        {
+            equippedWeapon.FillAmmunition();
+        }
+    }
+
+    // Called by an animation event to show or hide the equipped weapon's magazine object.
+    public void SetActiveMagazine(int active)
+    {
+        if (equippedWeaponMagazine != null)
+        {
+            if (active != 0)
+            {
+                equippedWeaponMagazine.gameObject.SetActive(true);
+            }
+            else
+            {
+                equippedWeaponMagazine.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    // Called by an animation event when the reload animation finishes.
+    public void AnimationEndedReload()
+    {
+        reloading = false;
+    }
+
+    // Called by an animation event when the inspect animation finishes.
+    public void AnimationEndedInspect()
+    {
+        inspecting = false;
+    }
+
+    // Called by an animation event when the holster animation finishes.
+    public void AnimationEndedHolster()
+    {
+        holstering = false;
+    }
+
+    #endregion
+
+    #region Input Callbacks
 
     // InputAction.CallbackContext tells us what phase of an Input System action just happened.
     // Handles pressing, releasing, and firing a semi-automatic weapon.
@@ -858,63 +832,122 @@ public class Character : MonoBehaviour
         }
     }
 
-    // Called by an animation event to tell the equipped weapon to eject a casing.
-    public void EjectCasing()
+    #endregion
+
+    #region Getters
+
+    // Returns the world camera used by the player.
+    public Camera GetCameraWorld()
     {
-        if (equippedWeapon != null)
+        return cameraWorld;
+    }
+
+    // Returns the player's inventory.
+    public Inventory GetInventory()
+    {
+        return inventory;
+    }
+
+    // Returns the player's currently equipped weapon.
+    public Weapon GetEquippedWeapon()
+    {
+        return equippedWeapon;
+    }
+
+    public float GetReloadSpeed()
+    {
+        return reloadSpeed;
+    }
+
+    public AudioSource GetWeaponAudioSource()
+    {
+        return weaponAudioSource;
+    }
+
+    public AudioSource GetReloadAudioSource()
+    {
+        return reloadAudioSource;
+    }
+
+    // Returns whether the crosshair should currently be visible.
+    public bool IsCrosshairVisible()
+    {
+        if (!aiming && !holstered && !knifing)
         {
-            equippedWeapon.EjectCasing();
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
-    // Called by an animation event to transfer ammunition into the equipped weapon.
-    public void FillAmmunition()
+    // Returns whether the player is currently running.
+    public bool IsRunning()
     {
-        if (equippedWeapon != null)
+        return running;
+    }
+
+    // Returns whether the player is currently aiming.
+    public bool IsAiming()
+    {
+        return aiming;
+    }
+
+    // Returns whether the cursor is currently locked for gameplay.
+    public bool IsCursorLocked()
+    {
+        return cursorLocked;
+    }
+
+    // Returns whether the tutorial UI should be shown.
+    public bool IsTutorialTextVisible()
+    {
+        return tutorialTextVisible;
+    }
+
+    // Returns the latest movement input received from the Input System.
+    public Vector2 GetInputMovement()
+    {
+        return movementInput;
+    }
+
+    // Returns the latest look input received from the Input System.
+    public Vector2 GetInputLook()
+    {
+        return lookInput;
+    }
+
+    #endregion
+
+    #region Utilities
+
+    // Applies the current cursor lock state to Unity's cursor.
+    private void UpdateCursorState()
+    {
+        if (cursorLocked)
         {
-            equippedWeapon.FillAmmunition();
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
     }
 
-    public void MaxAmmo()
+    private void SetLayerRecursively(GameObject obj, int newLayer)
     {
-        if (equippedWeapon != null)
+        if (obj == null) return;
+
+        obj.layer = newLayer; // Changes the current object's layer
+
+        foreach (Transform child in obj.transform)
         {
-            equippedWeapon.MaxAmmo();
+            SetLayerRecursively(child.gameObject, newLayer); // Changes the child's layer too
         }
     }
 
-    // Called by an animation event to show or hide the equipped weapon's magazine object.
-    public void SetActiveMagazine(int active)
-    {
-        if (equippedWeaponMagazine != null)
-        {
-            if (active != 0)
-            {
-                equippedWeaponMagazine.gameObject.SetActive(true);
-            }
-            else
-            {
-                equippedWeaponMagazine.gameObject.SetActive(false);
-            }
-        }
-    }
-
-    // Called by an animation event when the reload animation finishes.
-    public void AnimationEndedReload()
-    {
-        reloading = false;
-    }
-
-    // Called by an animation event when the inspect animation finishes.
-    public void AnimationEndedInspect()
-    {
-        inspecting = false;
-    }
-
-    // Called by an animation event when the holster animation finishes.
-    public void AnimationEndedHolster()
-    {
-        holstering = false;
-    }
+    #endregion
 }

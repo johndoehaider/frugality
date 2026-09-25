@@ -3,6 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Animator), typeof(WeaponAttachmentManager))]
 public class Weapon : MonoBehaviour
 {
+    [Header("Weapon Info")]
+    [SerializeField] private string weaponName;
+
     [Header("Firing")]
     [SerializeField] private bool automatic;
     [SerializeField] private float projectileImpulse = 400f;
@@ -181,6 +184,11 @@ public class Weapon : MonoBehaviour
         {
             Instantiate(casingPrefab, socketEjection.position, socketEjection.rotation);
         }
+    }
+    
+    public string GetWeaponName()
+    {
+        return weaponName;
     }
 
     // Returns the weapon Animator.

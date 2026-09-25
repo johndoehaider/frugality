@@ -1,143 +1,231 @@
 using UnityEngine;
 using System.Collections;
 
+[RequireComponent(typeof(EnemyTargeting))]
+[RequireComponent(typeof(EnemyNavigation))]
 public class Enemy : MonoBehaviour
 {
-
-    // [Header("Barrier Behavior")]
-    // [SerializeField] private LayerMask playerLayer;
-    // [SerializeField] private float barrierAttackRange = 2f;
+    [Header("Behavior")]
+    [SerializeField] private EnemyBehaviorData behaviorData;
 
     [Header("Speeds")]
     [SerializeField] private float walkingSpeed = 1f;
-    [SerializeField] private float runningSpeed = 3f;  
+    [SerializeField] private float runningSpeed = 3f;
     [SerializeField] private float sprintingSpeed = 6f;
 
-    [Header("Health & Attack")]
-    [SerializeField] private float attackCooldown = 3f;
+    [Header("Health & Damage")]
     [SerializeField] private float damage = 60f;
     [SerializeField] private float health = 100f;
 
-    private GameObject player;
-    private Rigidbody enemyRb;
+    private EnemyTargeting targeting;
+    private EnemyNavigation navigation;
     private Animator animator;
+
+    private Character attackTarget;
+    private PlayerHealth attackTargetHealth;
 
     private SpawnManager spawnManager;
     private PowerUpManager powerupManager;
 
-    private float [] speeds;
+    private float[] speeds;
     private float currentSpeed;
 
-    private bool isDead = false;
-    private float lastDamageTime = 0f;
+    private bool isDead;
+    private bool isAttacking;
 
-    void Awake()
-    {
-        speeds = new float[] {walkingSpeed, runningSpeed, sprintingSpeed};
-        animator = GetComponentInChildren<Animator>();    
-    }
-    
-    void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
 
-        enemyRb = GetComponent<Rigidbody>();
-    }
+    #region Unity Lifecycle
 
-    // Update is called once per frame
-    void FixedUpdate()
+    private void Awake()
     {
-        // Move enemy towards player
-        Vector3 moveDirection = (player.transform.position - transform.position).normalized;
-        moveDirection.y = 0;
-        enemyRb.MovePosition(enemyRb.position + moveDirection * currentSpeed * Time.deltaTime);
-        if (!isDead)
+        speeds = new float[]
         {
-            enemyRb.rotation = Quaternion.LookRotation(moveDirection);
+            walkingSpeed,
+            runningSpeed,
+            sprintingSpeed
+        };
+
+        animator = GetComponentInChildren<Animator>();
+        targeting = GetComponent<EnemyTargeting>();
+        navigation = GetComponent<EnemyNavigation>();
+    }
+
+    private void Update()
+    {
+        UpdateAI();
+    }
+
+    #endregion
+
+
+    #region AI
+
+    private void UpdateAI()
+    {
+        if (isDead || isAttacking)
+        {
+            return;
+        }
+
+        Character target = targeting.GetCurrentTarget();
+
+        if (target == null)
+        {
+            navigation.ClearPath();
+            return;
+        }
+
+        if (navigation.IsWithinHorizontalDistance(
+            target.transform.position,
+            behaviorData.GetAttackRange()))
+        {
+            StartAttack(target);
+            return;
+        }
+
+        navigation.MoveTowards(target.transform.position);
+    }
+
+
+    private void StartAttack(Character target)
+    {
+        PlayerHealth targetHealth = target.GetComponent<PlayerHealth>();
+
+        if (targetHealth == null || targetHealth.IsDead())
+        {
+            return;
+        }
+
+        attackTarget = target;
+        attackTargetHealth = targetHealth;
+
+        isAttacking = true;
+
+        navigation.PauseMovement();
+        navigation.FacePosition(attackTarget.transform.position);
+
+        animator.SetTrigger("Attack");
+    }
+
+
+    public void AttackHit()
+    {
+        if (isDead || !isAttacking)
+        {
+            return;
+        }
+
+        if (attackTarget == null || attackTargetHealth == null)
+        {
+            return;
+        }
+
+        if (attackTargetHealth.IsDead())
+        {
+            return;
+        }
+
+        if (navigation.IsWithinHorizontalDistance(
+            attackTarget.transform.position,
+            behaviorData.GetAttackRange()))
+        {
+            attackTargetHealth.LoseHealth(damage);
         }
     }
 
-    void Update()
+
+    public void AnimationEndedAttack()
     {
-        
+        isAttacking = false;
+
+        attackTarget = null;
+        attackTargetHealth = null;
+
+        navigation.ResumeMovement();
     }
 
-    void OnCollisionStay(Collision collision)
+    #endregion
+
+    #region Death and Speed
+
+    public void LoseHealth(float amount, PlayerPoints playerPoints)
     {
-        if (!isDead)
+        if (isDead)
         {
-            if (collision.gameObject.CompareTag("Player"))
-            {
-                PlayerHealth playerHealth = collision.gameObject.GetComponentInParent<PlayerHealth>();
-                
-                if (Time.time - lastDamageTime >= attackCooldown)
-                {
-                    animator.SetTrigger("Attack");
-                    playerHealth.LoseHealth(damage);
-                    lastDamageTime = Time.time;
-                }
-            }
+            return;
         }
-    }
 
-    public void LoseHealth (float amount, PlayerPoints playerPoints)
-    {
-        if (!isDead)
+        health -= amount;
+
+        if (health > 0f)
         {
-            health -= amount;
-            if (health <= 0)
-            {
-                Debug.Log("Enemy dead!");
-                playerPoints.AddPoints(50);
-                isDead = true;
-
-                spawnManager?.EnemyDied();
-                powerupManager?.TryDropPowerUp(transform.position);
-
-                StartCoroutine(DeathRoutine());
-            }
-            else
-            {
-                playerPoints.AddPoints(10);
-            }
+            playerPoints?.AddPoints(10);
+            return;
         }
+
+        playerPoints?.AddPoints(50);
+        powerupManager?.TryDropPowerUp(transform.position);
+
+        BeginDeath();
     }
 
-    IEnumerator DeathRoutine()
+
+    private void BeginDeath()
     {
-        // start death anim, set speed to 0, then wait 2 seconds to destroy object
+        if (isDead)
+        {
+            return;
+        }
+
+        isDead = true;
+        isAttacking = false;
+
+        attackTarget = null;
+        attackTargetHealth = null;
+
+        targeting.Shutdown();
+        navigation.Shutdown();
+
+        spawnManager?.EnemyDied();
+
+        StartCoroutine(DeathRoutine());
+    }
+
+    private IEnumerator DeathRoutine()
+    {
         animator.SetTrigger("Die");
+
         currentSpeed = 0f;
         GetComponent<Collider>().enabled = false;
 
         yield return new WaitForSeconds(20f);
+
         Destroy(gameObject);
     }
 
-    void SetMovementAnimationRunner(bool isRunner)
+    private void SetMovementAnimationRunner(bool isRunner)
     {
         animator.SetBool("IsWalker", !isRunner);
         animator.SetBool("IsRunner", isRunner);
     }
-
     public void Walkers()
     {
         currentSpeed = walkingSpeed;
-
+        navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(false);
     }
 
     public void Runners()
     {
         currentSpeed = runningSpeed;
-
+        navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(true);
     }
 
     public void Sprinters()
     {
         currentSpeed = sprintingSpeed;
-
+        navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(true);
     }
 
@@ -172,6 +260,7 @@ public class Enemy : MonoBehaviour
     public void DogSpeed()
     {
         currentSpeed = runningSpeed;
+        navigation.SetMovementSpeed(currentSpeed);
     }
 
     public void SetSpawnManager(SpawnManager manager)
@@ -239,13 +328,13 @@ public class Enemy : MonoBehaviour
         }
     }
 
-   public void Nuke()
+    public void Nuke()
     {
         if (!isDead)
         {
-            isDead = true;
-            spawnManager?.EnemyDied();
-            StartCoroutine(DeathRoutine());
+            BeginDeath();
         }
     }
+
+    #endregion
 }
