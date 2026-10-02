@@ -17,5 +17,13 @@ MonoBehaviour:
   pathRefreshInterval: 0.1
   acceleration: 12
   angularSpeed: 720
+  defaultAvoidanceType: 1
   attackRange: 1.5
   stoppingDistance: 0.8
+  entryStagingDistance: 1.5
+  entryApproachDistance: 0.15
+  entryAlignmentAngle: 5
+  entryTurnSpeed: 100
+  entryAvoidanceType: 0
+  minEntrySlotRetryTime: 0.4
+  maxEntrySlotRetryTime: 0.6
