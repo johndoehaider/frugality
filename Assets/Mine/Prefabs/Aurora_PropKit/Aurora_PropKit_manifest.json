@@ -1,0 +1,691 @@
+{
+  "kit": "Aurora Excavation Modular Prop Kit",
+  "units": "meters (1 model unit = 1 Unity unit = 1 m)",
+  "axis": "Y-up",
+  "pivot_convention": "grounded and centered in X/Z unless otherwise noted",
+  "materials_file": "Aurora_PropKit.mtl",
+  "assets": {
+    "AUR_Fence_2m": {
+      "file": "AUR_Fence_2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.06,
+          0.0,
+          -0.06
+        ],
+        "max": [
+          1.06,
+          1.35,
+          0.06
+        ],
+        "size": [
+          2.12,
+          1.35,
+          0.12
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Simple perimeter fence segment; snap end-to-end."
+    },
+    "AUR_Fence_4m": {
+      "file": "AUR_Fence_4m.obj",
+      "bounds_m": {
+        "min": [
+          -2.06,
+          0.0,
+          -0.06
+        ],
+        "max": [
+          2.06,
+          1.35,
+          0.06
+        ],
+        "size": [
+          4.12,
+          1.35,
+          0.12
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Long perimeter fence segment; center post included."
+    },
+    "AUR_Gate_2m": {
+      "file": "AUR_Gate_2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.22,
+          0.0,
+          -0.07
+        ],
+        "max": [
+          1.22,
+          1.6,
+          0.07
+        ],
+        "size": [
+          2.44,
+          1.6,
+          0.14
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Wood gate; pivot is centered for easy placement."
+    },
+    "AUR_Railing_2m": {
+      "file": "AUR_Railing_2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.03,
+          0.0,
+          -0.03
+        ],
+        "max": [
+          1.03,
+          1.1,
+          0.03
+        ],
+        "size": [
+          2.06,
+          1.1,
+          0.06
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Industrial railing for excavation and dock edges."
+    },
+    "AUR_Crate_Small": {
+      "file": "AUR_Crate_Small.obj",
+      "bounds_m": {
+        "min": [
+          -0.31,
+          0.0,
+          -0.31
+        ],
+        "max": [
+          0.31,
+          0.57,
+          0.31
+        ],
+        "size": [
+          0.62,
+          0.57,
+          0.62
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Small utility crate."
+    },
+    "AUR_Crate_Large": {
+      "file": "AUR_Crate_Large.obj",
+      "bounds_m": {
+        "min": [
+          -0.51,
+          0.0,
+          -0.41
+        ],
+        "max": [
+          0.51,
+          0.82,
+          0.41
+        ],
+        "size": [
+          1.02,
+          0.82,
+          0.82
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Large supply crate."
+    },
+    "AUR_AmmoCase": {
+      "file": "AUR_AmmoCase.obj",
+      "bounds_m": {
+        "min": [
+          -0.36,
+          0.0,
+          -0.195
+        ],
+        "max": [
+          0.36,
+          0.365,
+          0.195
+        ],
+        "size": [
+          0.72,
+          0.365,
+          0.39
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Military hard case / ammo case."
+    },
+    "AUR_Barrel": {
+      "file": "AUR_Barrel.obj",
+      "bounds_m": {
+        "min": [
+          -0.305,
+          0.0,
+          -0.305
+        ],
+        "max": [
+          0.305,
+          0.88,
+          0.305
+        ],
+        "size": [
+          0.61,
+          0.88,
+          0.61
+        ]
+      },
+      "suggested_collider": "Capsule/mesh",
+      "notes": "Steel utility barrel."
+    },
+    "AUR_Sandbag_Single": {
+      "file": "AUR_Sandbag_Single.obj",
+      "bounds_m": {
+        "min": [
+          -0.46,
+          0.0,
+          -0.23
+        ],
+        "max": [
+          0.46,
+          0.3,
+          0.23
+        ],
+        "size": [
+          0.92,
+          0.3,
+          0.46
+        ]
+      },
+      "suggested_collider": "Box",
+      "notes": "Single sandbag."
+    },
+    "AUR_SandbagWall_2m": {
+      "file": "AUR_SandbagWall_2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.18,
+          0.0,
+          -0.23
+        ],
+        "max": [
+          1.18,
+          0.57,
+          0.23
+        ],
+        "size": [
+          2.36,
+          0.57,
+          0.46
+        ]
+      },
+      "suggested_collider": "Compound boxes",
+      "notes": "Two-course defensive sandbag wall."
+    },
+    "AUR_Bench": {
+      "file": "AUR_Bench.obj",
+      "bounds_m": {
+        "min": [
+          -0.9,
+          0.0,
+          -0.235
+        ],
+        "max": [
+          0.9,
+          1.0,
+          0.235
+        ],
+        "size": [
+          1.8,
+          1.0,
+          0.47
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Rough timber camp bench."
+    },
+    "AUR_WorkTable": {
+      "file": "AUR_WorkTable.obj",
+      "bounds_m": {
+        "min": [
+          -0.8,
+          0.0,
+          -0.375
+        ],
+        "max": [
+          0.8,
+          0.905,
+          0.375
+        ],
+        "size": [
+          1.6,
+          0.905,
+          0.75
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Workshop / barracks utility table."
+    },
+    "AUR_Campfire": {
+      "file": "AUR_Campfire.obj",
+      "bounds_m": {
+        "min": [
+          -0.8,
+          0.0,
+          -0.76
+        ],
+        "max": [
+          0.8,
+          0.8,
+          0.76
+        ],
+        "size": [
+          1.6,
+          0.8,
+          1.52
+        ]
+      },
+      "suggested_collider": "Compound/none on flame",
+      "notes": "Stone fire ring with logs. Orange wedge is a placeholder marker for your fire VFX."
+    },
+    "AUR_UtilityPole": {
+      "file": "AUR_UtilityPole.obj",
+      "bounds_m": {
+        "min": [
+          -1.1,
+          0.0,
+          -0.1141
+        ],
+        "max": [
+          1.1,
+          5.0,
+          0.1141
+        ],
+        "size": [
+          2.2,
+          5.0,
+          0.2283
+        ]
+      },
+      "suggested_collider": "Capsule/box",
+      "notes": "5 m timber utility pole with crossbar."
+    },
+    "AUR_LampPost": {
+      "file": "AUR_LampPost.obj",
+      "bounds_m": {
+        "min": [
+          -0.25,
+          0.0,
+          -0.175
+        ],
+        "max": [
+          0.25,
+          3.13,
+          0.175
+        ],
+        "size": [
+          0.5,
+          3.13,
+          0.35
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Simple camp lamp post. Add Unity Light separately."
+    },
+    "AUR_Generator": {
+      "file": "AUR_Generator.obj",
+      "bounds_m": {
+        "min": [
+          -0.7,
+          0.0,
+          -0.47
+        ],
+        "max": [
+          0.7,
+          1.355,
+          0.47
+        ],
+        "size": [
+          1.4,
+          1.355,
+          0.94
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Compact diesel generator for excavation support."
+    },
+    "AUR_CommsConsole": {
+      "file": "AUR_CommsConsole.obj",
+      "bounds_m": {
+        "min": [
+          -0.575,
+          0.0,
+          -0.3425
+        ],
+        "max": [
+          0.575,
+          2.2,
+          0.3425
+        ],
+        "size": [
+          1.15,
+          2.2,
+          0.685
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Radio/comms equipment cabinet."
+    },
+    "AUR_AntennaMast_5m": {
+      "file": "AUR_AntennaMast_5m.obj",
+      "bounds_m": {
+        "min": [
+          -0.3875,
+          0.0,
+          -0.3875
+        ],
+        "max": [
+          0.3875,
+          6.2,
+          0.3875
+        ],
+        "size": [
+          0.775,
+          6.2,
+          0.775
+        ]
+      },
+      "suggested_collider": "Compound boxes",
+      "notes": "Compact communications mast."
+    },
+    "AUR_Dock_2x2m": {
+      "file": "AUR_Dock_2x2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.0,
+          0.0,
+          -1.03
+        ],
+        "max": [
+          1.0,
+          1.51,
+          1.03
+        ],
+        "size": [
+          2.0,
+          1.51,
+          2.06
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "2 x 2 m modular dock section."
+    },
+    "AUR_Dock_End": {
+      "file": "AUR_Dock_End.obj",
+      "bounds_m": {
+        "min": [
+          -1.0,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          1.0,
+          0.765,
+          0.5
+        ],
+        "size": [
+          2.0,
+          0.765,
+          1.0
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Dock end cap with bollards."
+    },
+    "AUR_Ladder_3m": {
+      "file": "AUR_Ladder_3m.obj",
+      "bounds_m": {
+        "min": [
+          -0.335,
+          0.0,
+          -0.035
+        ],
+        "max": [
+          0.335,
+          3.0,
+          0.035
+        ],
+        "size": [
+          0.67,
+          3.0,
+          0.07
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "3 m ladder."
+    },
+    "AUR_Stairs_1m": {
+      "file": "AUR_Stairs_1m.obj",
+      "bounds_m": {
+        "min": [
+          -0.6,
+          0.0,
+          -0.8
+        ],
+        "max": [
+          0.6,
+          1.0,
+          0.8
+        ],
+        "size": [
+          1.2,
+          1.0,
+          1.6
+        ]
+      },
+      "suggested_collider": "Compound boxes",
+      "notes": "Five-step timber stair module; 1 m rise."
+    },
+    "AUR_SignPost": {
+      "file": "AUR_SignPost.obj",
+      "bounds_m": {
+        "min": [
+          -0.525,
+          0.0,
+          -0.05
+        ],
+        "max": [
+          0.525,
+          2.0,
+          0.05
+        ],
+        "size": [
+          1.05,
+          2.0,
+          0.1
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Generic warning/direction sign. Add decal/text in Unity."
+    },
+    "AUR_ExcavationWinch": {
+      "file": "AUR_ExcavationWinch.obj",
+      "bounds_m": {
+        "min": [
+          -0.725,
+          0.0,
+          -0.5
+        ],
+        "max": [
+          0.725,
+          2.205,
+          0.5
+        ],
+        "size": [
+          1.45,
+          2.205,
+          1.0
+        ]
+      },
+      "suggested_collider": "Compound boxes",
+      "notes": "Small excavation hoist/winch for the shaft/support area."
+    },
+    "AUR_CableSpool": {
+      "file": "AUR_CableSpool.obj",
+      "bounds_m": {
+        "min": [
+          -0.48,
+          0.0,
+          -0.325
+        ],
+        "max": [
+          0.48,
+          0.96,
+          0.325
+        ],
+        "size": [
+          0.96,
+          0.96,
+          0.65
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Large cable spool."
+    },
+    "AUR_FloodlightTripod": {
+      "file": "AUR_FloodlightTripod.obj",
+      "bounds_m": {
+        "min": [
+          -0.6119,
+          0.0,
+          -0.6694
+        ],
+        "max": [
+          0.6119,
+          2.3189,
+          0.6694
+        ],
+        "size": [
+          1.2239,
+          2.3189,
+          1.3388
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Portable dual floodlight. Add Unity lights separately."
+    },
+    "AUR_TarpShelter": {
+      "file": "AUR_TarpShelter.obj",
+      "bounds_m": {
+        "min": [
+          -1.4896,
+          0.0,
+          -1.025
+        ],
+        "max": [
+          1.4896,
+          2.2586,
+          1.025
+        ],
+        "size": [
+          2.9791,
+          2.2586,
+          2.05
+        ]
+      },
+      "suggested_collider": "Poles only",
+      "notes": "Small field tarp shelter / temporary work cover."
+    },
+    "AUR_JerryCan": {
+      "file": "AUR_JerryCan.obj",
+      "bounds_m": {
+        "min": [
+          -0.17,
+          0.0,
+          -0.09
+        ],
+        "max": [
+          0.17,
+          0.62,
+          0.09
+        ],
+        "size": [
+          0.34,
+          0.62,
+          0.18
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Fuel/water can."
+    },
+    "AUR_Toolbox": {
+      "file": "AUR_Toolbox.obj",
+      "bounds_m": {
+        "min": [
+          -0.275,
+          0.0,
+          -0.14
+        ],
+        "max": [
+          0.275,
+          0.44,
+          0.14
+        ],
+        "size": [
+          0.55,
+          0.44,
+          0.28
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Portable maintenance toolbox."
+    },
+    "AUR_Barricade_2m": {
+      "file": "AUR_Barricade_2m.obj",
+      "bounds_m": {
+        "min": [
+          -1.0,
+          0.0,
+          -0.105
+        ],
+        "max": [
+          1.0,
+          1.3,
+          0.105
+        ],
+        "size": [
+          2.0,
+          1.3,
+          0.21
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Simple wooden roadblock / route blocker."
+    },
+    "AUR_EquipmentRack": {
+      "file": "AUR_EquipmentRack.obj",
+      "bounds_m": {
+        "min": [
+          -0.7,
+          0.0,
+          -0.25
+        ],
+        "max": [
+          0.7,
+          0.9,
+          0.25
+        ],
+        "size": [
+          1.4,
+          0.9,
+          0.5
+        ]
+      },
+      "suggested_collider": "Box/compound",
+      "notes": "Open equipment rack for shed/comms clutter."
+    }
+  }
+}

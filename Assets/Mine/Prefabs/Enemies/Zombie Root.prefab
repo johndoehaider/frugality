@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3660884858303761971}
   - component: {fileID: 8754785719014725671}
   - component: {fileID: 1389549200978317054}
+  - component: {fileID: 7103881043171621761}
   - component: {fileID: 7512251388731555011}
   m_Layer: 8
   m_Name: Zombie Root
@@ -132,6 +133,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyNavigation
   behaviorData: {fileID: 11400000, guid: a960edf4ae3cb514782e2f62ad96425f, type: 2}
+--- !u!114 &7103881043171621761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1616832352541028851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bde8e66774568d642bce3c170e9a834d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyEntry
 --- !u!195 &7512251388731555011
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -153,7 +166,7 @@ NavMeshAgent:
   m_Height: 2
   m_BaseOffset: 1
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 1
+  m_ObstacleAvoidanceType: 0
 --- !u!1001 &2647031172126221183
 PrefabInstance:
   m_ObjectHideFlags: 0

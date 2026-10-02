@@ -1,0 +1,12 @@
+{
+    "asset": "f56bab82ebea5e3489eeb4f7a1f5af7d",
+    "fileName": "01a0df15-8a5f-7432-bf20-97b63ceb04a1_Preview.png",
+    "prompt": "“seamless compacted dirty snow ground, dark frozen soil showing through, sparse dead grass, muddy worn patches, cold northern military excavation site, top-down terrain texture, no large rocks, no objects”",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash-texture",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": 785410141,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation"
+}

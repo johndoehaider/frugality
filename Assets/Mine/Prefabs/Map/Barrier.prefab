@@ -84,6 +84,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2454362221478261257}
+  - {fileID: 2268815223838083018}
   - {fileID: 2143261988306596599}
   - {fileID: 6400706156208365253}
   - {fileID: 6685937475548440465}
@@ -91,6 +93,8 @@ Transform:
   - {fileID: 4639480680768705117}
   - {fileID: 7286871150975678966}
   - {fileID: 3468616023966687241}
+  - {fileID: 4499272770927826050}
+  - {fileID: 7397205470561012838}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &4645749185518567713
@@ -133,6 +137,73 @@ MonoBehaviour:
   - {fileID: 8476490009502333003}
   zombieBlocker: {fileID: 5738459961280952834}
   repairCooldown: 0.5
+  entrySlots:
+  - approachPoint: {fileID: 2454362221478261257}
+    exitPoint: {fileID: 4499272770927826050}
+  - approachPoint: {fileID: 2268815223838083018}
+    exitPoint: {fileID: 7397205470561012838}
+--- !u!1 &1390160290006683655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7397205470561012838}
+  m_Layer: 2
+  m_Name: ZombieExitPointB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7397205470561012838
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1390160290006683655}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.436, y: -1.72, z: -0.757}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3509477326439753644}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1704311729133667644
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4499272770927826050}
+  m_Layer: 2
+  m_Name: ZombieExitPointA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4499272770927826050
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1704311729133667644}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.481, y: -1.72, z: -0.757}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3509477326439753644}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1861988790227718049
 GameObject:
   m_ObjectHideFlags: 0
@@ -162,8 +233,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.11286612, w: 0.99361026}
   m_LocalPosition: {x: -0.07076343, y: -0.38, z: 0}
-  m_LocalScale: {x: 2, y: 0.23, z: 0.04}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.92, y: 0.2208, z: 0.038399998}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3509477326439753644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -12.961}
@@ -200,7 +271,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 21d53dc8fea39b142ba76a51e837bd68, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -311,6 +382,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fc2db3805debd74fbb4be01d4dbd785, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InteractZone
+--- !u!1 &5626982429745968624
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2268815223838083018}
+  m_Layer: 2
+  m_Name: ZombieApproachPointB
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2268815223838083018
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5626982429745968624}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.437, y: -1.72, z: 0.707}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3509477326439753644}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6050154494987019979
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,8 +442,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0.11286612, w: 0.99361026}
   m_LocalPosition: {x: 0.070763454, y: 0.35, z: 0}
-  m_LocalScale: {x: 2, y: 0.23, z: 0.04}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.94, y: 0.2231, z: 0.0388}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3509477326439753644}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -12.961}
@@ -378,7 +480,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 957892661af9a974aaa8e04f48942386, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -490,7 +592,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 0c007032bd751794c85c7f39f1b389f5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -588,6 +690,37 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.1213179, y: 2.137996, z: 0.22267246}
   m_Center: {x: 0.010304928, y: -0.03857863, z: 0.008063793}
+--- !u!1 &6593468018302206662
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2454362221478261257}
+  m_Layer: 2
+  m_Name: ZombieApproachPointA
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2454362221478261257
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6593468018302206662}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.537, y: -1.72, z: 0.707}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3509477326439753644}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8476490009502333003
 GameObject:
   m_ObjectHideFlags: 0
@@ -655,7 +788,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 0662132f789772049bcc14b92f1da715, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

@@ -1,0 +1,12 @@
+{
+    "asset": "f56bab82ebea5e3489eeb4f7a1f5af7d",
+    "fileName": "01a0def8-792e-79fa-be00-85f8374232ff_Preview.png",
+    "prompt": "grass and dirt",
+    "negativePrompt": "",
+    "model": "gemini-3.1-flash-texture",
+    "modelName": "Gemini 3.1 Nano Banana 2",
+    "customSeed": 1184633825,
+    "w3CTraceId": "",
+    "feedback": 0,
+    "refinementMode": "Generation"
+}

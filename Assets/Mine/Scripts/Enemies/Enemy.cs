@@ -1,10 +1,25 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 [RequireComponent(typeof(EnemyTargeting))]
 [RequireComponent(typeof(EnemyNavigation))]
+[RequireComponent(typeof(EnemyEntry))]
 public class Enemy : MonoBehaviour
 {
+    #region AI State
+
+    private enum EnemyAIState
+    {
+        Chasing,
+        Attacking,
+        Entering,
+        Dead
+    }
+
+    #endregion
+
+    #region Inspector
+
     [Header("Behavior")]
     [SerializeField] private EnemyBehaviorData behaviorData;
 
@@ -17,9 +32,24 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float damage = 60f;
     [SerializeField] private float health = 100f;
 
+    #endregion
+
+    #region Speed Distribution Constants
+
+    private const int MoveSpeedRoundMultiplier = 8;
+    private const int MoveSpeedRollRange = 35;
+    private const int WalkSpeedThreshold = 35;
+    private const int RunSpeedThreshold = 70;
+
+    #endregion
+
+    #region Runtime State
+
     private EnemyTargeting targeting;
     private EnemyNavigation navigation;
+    private EnemyEntry entry;
     private Animator animator;
+    private Collider rootCollider;
 
     private Character attackTarget;
     private PlayerHealth attackTargetHealth;
@@ -27,49 +57,49 @@ public class Enemy : MonoBehaviour
     private SpawnManager spawnManager;
     private PowerUpManager powerupManager;
 
-    private float[] speeds;
+    private EnemyAIState aiState = EnemyAIState.Chasing;
     private float currentSpeed;
 
-    private bool isDead;
-    private bool isAttacking;
-
+    #endregion
 
     #region Unity Lifecycle
 
     private void Awake()
     {
-        speeds = new float[]
-        {
-            walkingSpeed,
-            runningSpeed,
-            sprintingSpeed
-        };
-
-        animator = GetComponentInChildren<Animator>();
         targeting = GetComponent<EnemyTargeting>();
         navigation = GetComponent<EnemyNavigation>();
+        entry = GetComponent<EnemyEntry>();
+        animator = GetComponentInChildren<Animator>();
+        rootCollider = GetComponent<Collider>();
+
+        entry.Initialize(this, navigation, behaviorData, animator);
     }
 
     private void Update()
     {
-        UpdateAI();
+        switch (aiState)
+        {
+            case EnemyAIState.Chasing:
+                UpdateChasing();
+                break;
+
+            case EnemyAIState.Entering:
+                entry.Tick();
+                break;
+
+            case EnemyAIState.Attacking:
+            case EnemyAIState.Dead:
+                break;
+        }
     }
 
     #endregion
 
+    #region Chasing
 
-    #region AI
-
-    private void UpdateAI()
+    private void UpdateChasing()
     {
-        if (isDead || isAttacking)
-        {
-            return;
-        }
-
-        Character target = targeting.GetCurrentTarget();
-
-        if (target == null)
+        if (!targeting.TryGetCurrentTarget(out Character target, out PlayerHealth targetHealth))
         {
             navigation.ClearPath();
             return;
@@ -79,48 +109,52 @@ public class Enemy : MonoBehaviour
             target.transform.position,
             behaviorData.GetAttackRange()))
         {
-            StartAttack(target);
+            StartAttack(target, targetHealth);
             return;
         }
 
-        navigation.MoveTowards(target.transform.position);
+        navigation.MoveTowards(
+            target.transform.position,
+            behaviorData.GetAngularSpeed()
+        );
     }
 
-
-    private void StartAttack(Character target)
+    private void BeginChasing()
     {
-        PlayerHealth targetHealth = target.GetComponent<PlayerHealth>();
+        aiState = EnemyAIState.Chasing;
+        navigation.UseDefaultAvoidance();
+        navigation.UseDefaultStoppingDistance();
+        navigation.ResumeMovement();
+        targeting.ResumeTargeting();
+    }
 
-        if (targetHealth == null || targetHealth.IsDead())
-        {
-            return;
-        }
+    #endregion
 
+    #region Combat
+
+    private void StartAttack(Character target, PlayerHealth targetHealth)
+    {
         attackTarget = target;
         attackTargetHealth = targetHealth;
-
-        isAttacking = true;
+        aiState = EnemyAIState.Attacking;
 
         navigation.PauseMovement();
-        navigation.FacePosition(attackTarget.transform.position);
-
+        navigation.FacePosition(target.transform.position);
         animator.SetTrigger("Attack");
     }
 
-
     public void AttackHit()
     {
-        if (isDead || !isAttacking)
+        if (aiState == EnemyAIState.Entering)
         {
+            entry.AttackHit();
             return;
         }
 
-        if (attackTarget == null || attackTargetHealth == null)
-        {
-            return;
-        }
-
-        if (attackTargetHealth.IsDead())
+        if (aiState != EnemyAIState.Attacking ||
+            attackTarget == null ||
+            attackTargetHealth == null ||
+            attackTargetHealth.IsDead())
         {
             return;
         }
@@ -133,24 +167,70 @@ public class Enemy : MonoBehaviour
         }
     }
 
-
     public void AnimationEndedAttack()
     {
-        isAttacking = false;
+        if (aiState == EnemyAIState.Entering)
+        {
+            entry.AnimationEndedAttack();
+            return;
+        }
+
+        if (aiState != EnemyAIState.Attacking)
+        {
+            return;
+        }
 
         attackTarget = null;
         attackTargetHealth = null;
 
-        navigation.ResumeMovement();
+        BeginChasing();
     }
 
     #endregion
 
-    #region Death and Speed
+    #region Spawn Entry
+
+    public void SetSpawnPoint(EnemySpawnPoint spawnPoint)
+    {
+        if (spawnPoint != null &&
+            spawnPoint.GetEntryType() == EnemySpawnEntryType.Barrier)
+        {
+            if (!entry.Begin(spawnPoint.GetAssignedBarrier()))
+            {
+                Debug.LogError(
+                    $"Enemy '{name}' could not begin barrier entry from spawn point '{spawnPoint.name}'.",
+                    this
+                );
+
+                BeginChasing();
+                return;
+            }
+
+            aiState = EnemyAIState.Entering;
+            targeting.PauseTargeting();
+            return;
+        }
+
+        BeginChasing();
+    }
+
+    public void CompleteEntry()
+    {
+        if (aiState != EnemyAIState.Entering)
+        {
+            return;
+        }
+
+        BeginChasing();
+    }
+
+    #endregion
+
+    #region Health And Death
 
     public void LoseHealth(float amount, PlayerPoints playerPoints)
     {
-        if (isDead)
+        if (aiState == EnemyAIState.Dead)
         {
             return;
         }
@@ -169,45 +249,49 @@ public class Enemy : MonoBehaviour
         BeginDeath();
     }
 
-
     private void BeginDeath()
     {
-        if (isDead)
+        if (aiState == EnemyAIState.Dead)
         {
             return;
         }
 
-        isDead = true;
-        isAttacking = false;
-
+        aiState = EnemyAIState.Dead;
         attackTarget = null;
         attackTargetHealth = null;
 
+        entry.Cancel();
         targeting.Shutdown();
         navigation.Shutdown();
 
-        spawnManager?.EnemyDied();
-
+        spawnManager?.EnemyDied(this);
         StartCoroutine(DeathRoutine());
     }
 
     private IEnumerator DeathRoutine()
     {
         animator.SetTrigger("Die");
-
         currentSpeed = 0f;
-        GetComponent<Collider>().enabled = false;
+
+        if (rootCollider != null)
+        {
+            rootCollider.enabled = false;
+        }
 
         yield return new WaitForSeconds(20f);
-
         Destroy(gameObject);
     }
+
+    #endregion
+
+    #region Movement
 
     private void SetMovementAnimationRunner(bool isRunner)
     {
         animator.SetBool("IsWalker", !isRunner);
         animator.SetBool("IsRunner", isRunner);
     }
+
     public void Walkers()
     {
         currentSpeed = walkingSpeed;
@@ -229,49 +313,15 @@ public class Enemy : MonoBehaviour
         SetMovementAnimationRunner(true);
     }
 
-    public void RandomSpeedEarlyGame()
-    {
-        currentSpeed = speeds[Random.Range(0, 2)];
-        
-        if (currentSpeed == walkingSpeed)
-        {
-            Walkers();
-        }
-        else
-        {
-            Runners();
-        }
-    }
-
-    public void RandomSpeedLateGame()
-    {
-        currentSpeed = speeds[Random.Range(1, 3)];
-
-        if (currentSpeed == runningSpeed)
-        {
-            Runners();
-        }
-        else
-        {
-            Sprinters();
-        }
-    }
-
     public void DogSpeed()
     {
         currentSpeed = runningSpeed;
         navigation.SetMovementSpeed(currentSpeed);
     }
 
-    public void SetSpawnManager(SpawnManager manager)
-    {
-        spawnManager = manager;
-    }
+    #endregion
 
-    public void SetPowerUpManager(PowerUpManager manager)
-    {
-        powerupManager = manager;
-    }
+    #region Round Scaling
 
     public void SetHealthForRound(int round)
     {
@@ -287,23 +337,71 @@ public class Enemy : MonoBehaviour
 
     public void SetSpeedForRound(int round)
     {
-        if (round <= 3)
+        int moveSpeedValue =
+            round <= 1
+                ? 1
+                : (round - 1) * MoveSpeedRoundMultiplier;
+
+        int speedRoll = Random.Range(
+            moveSpeedValue,
+            moveSpeedValue + MoveSpeedRollRange
+        );
+
+        if (speedRoll <= WalkSpeedThreshold)
         {
             Walkers();
         }
-        else if (round <= 10)
-        {
-            RandomSpeedEarlyGame();
-        }
-        else if (round <= 20)
+        else if (speedRoll <= RunSpeedThreshold)
         {
             Runners();
         }
         else
         {
-            RandomSpeedLateGame();
+            Sprinters();
         }
     }
+
+    #endregion
+
+    #region Dependencies
+
+    public void SetSpawnManager(SpawnManager manager)
+    {
+        spawnManager = manager;
+    }
+
+    public void SetPowerUpManager(PowerUpManager manager)
+    {
+        powerupManager = manager;
+    }
+
+    #endregion
+
+    #region Powerups
+
+    public void InstaKill()
+    {
+        health = 1f;
+    }
+
+    public void EndInstaKill()
+    {
+        if (aiState == EnemyAIState.Dead || spawnManager == null)
+        {
+            return;
+        }
+
+        SetHealthForRound(spawnManager.GetRoundNumber());
+    }
+
+    public void Nuke()
+    {
+        BeginDeath();
+    }
+
+    #endregion
+
+    #region Getters
 
     public float GetEnemySpeed()
     {
@@ -313,27 +411,6 @@ public class Enemy : MonoBehaviour
     public float GetEnemyHealth()
     {
         return health;
-    }
-
-    public void InstaKill()
-    {
-        health = 1;
-    }
-
-    public void EndInstaKill()
-    {
-        if (!isDead)
-        {
-            SetHealthForRound(spawnManager.GetRoundNumber());
-        }
-    }
-
-    public void Nuke()
-    {
-        if (!isDead)
-        {
-            BeginDeath();
-        }
     }
 
     #endregion
