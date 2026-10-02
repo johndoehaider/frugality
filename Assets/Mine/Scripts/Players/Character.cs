@@ -517,6 +517,16 @@ public class Character : MonoBehaviour
             canRun = false;
         }
 
+        if (!movement.HasStamina())
+        {
+            canRun = false;
+        }
+
+        if (movement.IsLanding())
+        {
+            canRun = false;
+        }
+
         return canRun;
     }
 
@@ -623,6 +633,11 @@ public class Character : MonoBehaviour
     public void AnimationEndedHolster()
     {
         holstering = false;
+    }
+
+    public void AnimationEndedLanding()
+    {
+        movement.AnimationEndedLanding();
     }
 
     #endregion
@@ -886,6 +901,12 @@ public class Character : MonoBehaviour
     public bool IsRunning()
     {
         return running;
+    }
+
+    // Returns whether the player is currently holding the run button.
+    public bool IsRunButtonHeld()
+    {
+        return runButtonHeld;
     }
 
     // Returns whether the player is currently aiming.

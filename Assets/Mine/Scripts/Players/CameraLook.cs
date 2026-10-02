@@ -2,48 +2,53 @@ using UnityEngine;
 
 public class CameraLook : MonoBehaviour
 {
+    #region Inspector
+
     [Header("Settings")]
     [SerializeField] private Vector2 sensitivity = new Vector2(1f, 1f);
     [SerializeField] private Vector2 yClamp = new Vector2(-89f, 89f);
     [SerializeField] private bool smooth;
     [SerializeField] private float interpolationSpeed = 35f;
 
+    #endregion
+
+    #region Runtime State
+
     private Character playerCharacter;
-    private Rigidbody playerRigidbody;
 
     private float yaw;
     private float pitch;
 
+    #endregion
+
+    #region Unity Lifecycle
+
     private void Awake()
     {
         playerCharacter = GetComponentInParent<Character>();
-
-        if (playerCharacter != null)
-        {
-            playerRigidbody = playerCharacter.GetComponent<Rigidbody>();
-        }
     }
 
     private void Start()
     {
-        if (playerCharacter != null)
+        if (playerCharacter == null)
         {
-            yaw = playerCharacter.transform.eulerAngles.y;
-
-            float startingPitch = transform.localEulerAngles.x;
-
-            if (startingPitch > 180f)
-            {
-                startingPitch -= 360f;
-            }
-
-            pitch = startingPitch;
+            return;
         }
+
+        yaw = playerCharacter.transform.eulerAngles.y;
+        float startingPitch = transform.localEulerAngles.x;
+
+        if (startingPitch > 180f)
+        {
+            startingPitch -= 360f;
+        }
+
+        pitch = startingPitch;
     }
 
     private void LateUpdate()
     {
-        if (playerCharacter == null || playerRigidbody == null)
+        if (playerCharacter == null)
         {
             return;
         }
@@ -66,24 +71,15 @@ public class CameraLook : MonoBehaviour
 
         if (smooth)
         {
-            transform.localRotation = Quaternion.Slerp(
-                transform.localRotation,
-                targetCameraRotation,
-                Time.deltaTime * interpolationSpeed
-            );
-
-            Quaternion smoothCharacterRotation = Quaternion.Slerp(
-                playerRigidbody.rotation,
-                targetCharacterRotation,
-                Time.deltaTime * interpolationSpeed
-            );
-
-            playerRigidbody.MoveRotation(smoothCharacterRotation);
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, targetCameraRotation, Time.deltaTime * interpolationSpeed);
+            playerCharacter.transform.rotation = Quaternion.Slerp(playerCharacter.transform.rotation, targetCharacterRotation, Time.deltaTime * interpolationSpeed);
         }
         else
         {
             transform.localRotation = targetCameraRotation;
-            playerRigidbody.MoveRotation(targetCharacterRotation);
+            playerCharacter.transform.rotation = targetCharacterRotation;
         }
     }
+
+    #endregion
 }

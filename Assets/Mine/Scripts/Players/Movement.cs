@@ -1,150 +1,318 @@
 using UnityEngine;
 
-// RequireComponent makes sure this GameObject always has the physics components Movement needs.
-[RequireComponent(typeof(Rigidbody), typeof(CapsuleCollider))]
+[RequireComponent(typeof(CharacterController))]
 public class Movement : MonoBehaviour
 {
+    #region Inspector
+
     [Header("Audio Clips")]
     [SerializeField] private AudioClip audioClipWalking;
     [SerializeField] private AudioClip audioClipRunning;
 
-    [Header("Speeds")]
+    [Header("Speed")]
     [SerializeField] private float speedWalking = 3f;
     [SerializeField] private float speedRunning = 5f;
+
+    [Header("Stamina")]
     [SerializeField] private float stamina = 100f;
+    [SerializeField] private float staminaDecayTime = 10f;
+    [SerializeField] private float staminaRegenTime = 10f;
+    [SerializeField] private float staminaExhaustionCooldown = 1f;
 
     [Header("Jumping")]
     [SerializeField] private float jumpStrength = 5f;
     [SerializeField] private float upwardGravityMultiplier = 1.5f;
     [SerializeField] private float fallingGravityMultiplier = 2.5f;
+    private float groundedVerticalVelocity = -2f;
+
+    [Header("Air Movement")]
+    [Min(0f)]
+    [SerializeField] private float airControlAcceleration = 20f;
+    [Range(0f, 1.5f)]
+    [SerializeField] private float jumpMomentumMultiplier = 1f; 
+    [Min(0f)]
+    [SerializeField] private float minimumAirControlSpeed = 1f;
+
+    [Header("Jump Recovery")]
+    [Range(0f, 1f)]
+    [SerializeField] private float landingSpeedMultiplier = 0.75f;
+    [Min(0f)]
+    [SerializeField] private float landingSlowdownDuration = 0.3f;
+    [Min(0f)]
+    [SerializeField] private float reJumpDelay = 0.1f;
 
     [Header("References")]
     [SerializeField] private AudioSource footstepAudioSource;
     [SerializeField] private Animator characterAnimator;
 
-    private Rigidbody rigidBody;
-    private CapsuleCollider capsule;
+    #endregion
+
+    #region Runtime State
+
+    private CharacterController characterController;
     private Character playerCharacter;
 
     private bool grounded;
     private bool wasGrounded;
     private bool jumped;
+    private bool landing;
 
-    // Reuses one array for ground checks so Unity does not create a new one every physics frame.
-    private readonly RaycastHit[] groundHits = new RaycastHit[8];
+    private bool staminaExhausted;
+    private float maxStamina;
+    private float staminaExhaustedUntil;
 
-    // Gets the components Movement needs and sets up the footstep AudioSource.
-    private void Start()
+    private float verticalVelocity;
+    private float airborneSpeedLimit;
+    private float landingRecoveryTimeRemaining;
+    private float nextJumpAllowedTime;
+
+    private Vector3 groundedHorizontalVelocity;
+    private Vector3 airborneHorizontalVelocity;
+
+    #endregion
+
+    #region Unity Lifecycle
+
+    private void Awake()
     {
-        rigidBody = GetComponent<Rigidbody>();
-        capsule = GetComponent<CapsuleCollider>();
+        characterController = GetComponent<CharacterController>();
         playerCharacter = GetComponent<Character>();
 
-        rigidBody.constraints = RigidbodyConstraints.FreezeRotation;
+        maxStamina = stamina;
+    }
 
+    private void Start()
+    {
         footstepAudioSource.clip = audioClipWalking;
         footstepAudioSource.loop = true;
+
+        grounded = characterController.isGrounded;
+        wasGrounded = grounded;
     }
 
-    // While the player is touching something, get the size of the capsule, sphere-cast downward under the player, 
-    // check every collider it hits, ignore empty results and the player's own collider, 
-    // and if anything valid is underneath us, set grounded = true
-    private void OnCollisionStay()
-    {
-        float radius = capsule.bounds.extents.x - 0.01f;
-
-        int hitCount = Physics.SphereCastNonAlloc(capsule.bounds.center, radius, Vector3.down, groundHits, 
-        capsule.bounds.extents.y - radius * 0.5f, ~0, QueryTriggerInteraction.Ignore);
-
-        grounded = false;
-
-        for (int i = 0; i < hitCount; i++)
-        {
-            if (groundHits[i].collider != null && groundHits[i].collider != capsule)
-            {
-                if (rigidBody.linearVelocity.y <= 0.1f)
-                {
-                    grounded = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (jumped && rigidBody.linearVelocity.y <= 0.1f)
-        {
-            for (int i = 0; i < collision.contactCount; i++)
-            {
-                if (collision.GetContact(i).normal.y > 0.5f)
-                {
-                    characterAnimator.SetTrigger("Land");
-                    jumped = false;
-                    break;
-                }
-            }
-        }
-    }
-
-    // Moves the player using Rigidbody physics.
-    private void FixedUpdate()
-    {
-        MoveCharacter();
-        ApplyPlayerGravity();
-    }
-
-    // Handles footsteps every normal frame.
     private void Update()
     {
+        UpdateGroundedStateBeforeMovement();
+        UpdateLandingRecovery();
+        UpdateVerticalVelocity();
+        MoveCharacter();
+        UpdateGroundedStateAfterMovement();
+        UpdateLandingState();
         PlayFootstepSounds();
+        UpdateStamina();
     }
 
-    // Converts input into world-space movement and applies walking or running speed.
+    #endregion
+
+    #region Movement
+
     private void MoveCharacter()
     {
         Vector2 input = playerCharacter.GetInputMovement();
-        Vector3 movement = new Vector3(input.x, 0f, input.y);
+        Vector3 localDirection = new Vector3(input.x, 0f, input.y);
 
-        if (playerCharacter.IsRunning())
+        if (localDirection.sqrMagnitude > 1f)
         {
-            movement *= speedRunning;
+            localDirection.Normalize();
+        }
+
+        Vector3 worldDirection = transform.TransformDirection(localDirection);
+        Vector3 horizontalVelocity;
+
+        if (grounded)
+        {
+            float movementSpeed = GetGroundMovementSpeed() * GetLandingRecoverySpeedMultiplier();
+
+            horizontalVelocity = worldDirection * movementSpeed;
+            groundedHorizontalVelocity = horizontalVelocity;
+            airborneHorizontalVelocity = horizontalVelocity;
+            airborneSpeedLimit = horizontalVelocity.magnitude;
         }
         else
         {
-            movement *= speedWalking;
+            UpdateAirborneHorizontalVelocity(worldDirection);
+            horizontalVelocity = airborneHorizontalVelocity;
         }
 
-        movement = transform.TransformDirection(movement);
+        Vector3 motion = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
+        CollisionFlags collisionFlags = characterController.Move(motion * Time.deltaTime);
 
-        Vector3 currentVelocity = rigidBody.linearVelocity;
-        rigidBody.linearVelocity = new Vector3(movement.x, currentVelocity.y, movement.z);
+        if ((collisionFlags & CollisionFlags.Above) != 0 && verticalVelocity > 0f)
+        {
+            verticalVelocity = 0f;
+        }
     }
 
-    public void ApplyStaminUp(float walkSpeed,float runSpeed, float stam)
+    private void UpdateStamina()
     {
-        speedWalking = walkSpeed;
-        speedRunning = runSpeed;
-        stamina = stam;
+        if (playerCharacter.IsRunning())
+        {
+            stamina -= Time.deltaTime * staminaDecayTime;
+
+            if (stamina <= 0f)
+            {
+                stamina = 0f;
+                staminaExhausted = true;
+                staminaExhaustedUntil = Time.time + staminaExhaustionCooldown;
+            }
+
+            return;
+        }
+
+        if (stamina < maxStamina)
+        {
+            stamina += Time.deltaTime * staminaRegenTime;
+            stamina = Mathf.Min(stamina, maxStamina);
+        }
+
+        if (staminaExhausted && Time.time >= staminaExhaustedUntil && stamina > 0f)
+        {
+            staminaExhausted = false;
+        }
     }
 
-    // Plays walking or running footsteps while the player is moving on the ground.
+    private float GetGroundMovementSpeed()
+    {
+        return playerCharacter.IsRunning() ? speedRunning : speedWalking;
+    }
+
+    #endregion
+
+    #region Air Movement
+
+    private void UpdateAirborneHorizontalVelocity(Vector3 desiredWorldDirection)
+    {
+        if (desiredWorldDirection.sqrMagnitude <= 0.0001f)
+        {
+            return;
+        }
+
+        Vector3 targetAirVelocity = desiredWorldDirection.normalized * airborneSpeedLimit;
+        airborneHorizontalVelocity = Vector3.MoveTowards(airborneHorizontalVelocity, targetAirVelocity, airControlAcceleration * Time.deltaTime);
+    }
+
+    private void CaptureTakeoffMomentum()
+    {
+        airborneHorizontalVelocity = groundedHorizontalVelocity * jumpMomentumMultiplier;
+        airborneSpeedLimit = Mathf.Max(airborneHorizontalVelocity.magnitude, minimumAirControlSpeed);
+    }
+
+    #endregion
+
+    #region Grounding And Gravity
+
+    private void UpdateGroundedStateBeforeMovement()
+    {
+        wasGrounded = grounded;
+
+        if (verticalVelocity > 0f)
+        {
+            grounded = false;
+            return;
+        }
+
+        grounded = characterController.isGrounded;
+    }
+
+    private void UpdateVerticalVelocity()
+    {
+        if (grounded && verticalVelocity < 0f)
+        {
+            verticalVelocity = groundedVerticalVelocity;
+            return;
+        }
+
+        float gravityMultiplier = verticalVelocity > 0f ? upwardGravityMultiplier : fallingGravityMultiplier;
+        verticalVelocity += Physics.gravity.y * gravityMultiplier * Time.deltaTime;
+    }
+
+    private void UpdateGroundedStateAfterMovement()
+    {
+        grounded = characterController.isGrounded;
+    }
+
+    private void UpdateLandingState()
+    {
+        if (!jumped || wasGrounded || !grounded)
+        {
+            return;
+        }
+
+        landing = true;
+
+        characterAnimator.SetTrigger("Land");
+        jumped = false;
+        landingRecoveryTimeRemaining = landingSlowdownDuration;
+        nextJumpAllowedTime = Time.time + reJumpDelay;
+    }
+
+    public void AnimationEndedLanding()
+    {
+        landing = false;
+    }
+
+    public bool IsLanding()
+    {
+        return landing;
+    }
+
+    #endregion
+
+    #region Jumping
+
+    public void Jump()
+    {
+        if (!grounded || Time.time < nextJumpAllowedTime)
+        {
+            return;
+        }
+
+        CaptureTakeoffMomentum();
+
+        verticalVelocity = jumpStrength;
+        grounded = false;
+        jumped = true;
+
+        characterAnimator.SetTrigger("Jump");
+    }
+
+    #endregion
+
+    #region Jump Recovery
+
+    private void UpdateLandingRecovery()
+    {
+        if (landingRecoveryTimeRemaining <= 0f)
+        {
+            return;
+        }
+
+        landingRecoveryTimeRemaining = Mathf.Max(0f, landingRecoveryTimeRemaining - Time.deltaTime);
+    }
+
+    private float GetLandingRecoverySpeedMultiplier()
+    {
+        if (landingSlowdownDuration <= 0f || landingRecoveryTimeRemaining <= 0f)
+        {
+            return 1f;
+        }
+
+        float recoveryProgress = 1f - landingRecoveryTimeRemaining / landingSlowdownDuration;
+        return Mathf.Lerp(landingSpeedMultiplier, 1f, recoveryProgress);
+    }
+
+    #endregion
+
+    #region Audio
+
     private void PlayFootstepSounds()
     {
-        Vector3 horizontalVelocity = new Vector3(rigidBody.linearVelocity.x, 0f, rigidBody.linearVelocity.z);
+        Vector3 horizontalVelocity = characterController.velocity;
+        horizontalVelocity.y = 0f;
 
         if (grounded && horizontalVelocity.sqrMagnitude > 0.1f)
         {
-            AudioClip desiredClip;
-
-            if (playerCharacter.IsRunning())
-            {
-                desiredClip = audioClipRunning;
-            }
-            else
-            {
-                desiredClip = audioClipWalking;
-            }
+            AudioClip desiredClip = playerCharacter.IsRunning() ? audioClipRunning : audioClipWalking;
 
             if (footstepAudioSource.clip != desiredClip)
             {
@@ -156,40 +324,39 @@ public class Movement : MonoBehaviour
                 footstepAudioSource.Play();
             }
         }
-        else
+        else if (footstepAudioSource.isPlaying)
         {
-            if (footstepAudioSource.isPlaying)
-            {
-                footstepAudioSource.Pause();
-            }
+            footstepAudioSource.Pause();
         }
     }
 
-    public void Jump()
+    #endregion
+
+    #region Perk Modifiers
+
+    public void ApplyStaminUp(float walkSpeed, float runSpeed, float stam)
     {
-        if (grounded)
-        {
-            rigidBody.AddForce(Vector3.up * jumpStrength, ForceMode.VelocityChange);
-            characterAnimator.SetTrigger("Jump");
-            grounded = false;
-            jumped = true;
-        }
+        speedWalking = walkSpeed;
+        speedRunning = runSpeed;
+        maxStamina = stam;
+
+        stamina = maxStamina;
+        staminaExhausted = false;
     }
 
-    private void ApplyPlayerGravity()
-    {
-        if (rigidBody.linearVelocity.y > 0f)
-        {
-            rigidBody.AddForce(Physics.gravity * (upwardGravityMultiplier - 1f), ForceMode.Acceleration);
-        }
-        else if (rigidBody.linearVelocity.y < 0f)
-        {
-            rigidBody.AddForce(Physics.gravity * (fallingGravityMultiplier - 1f), ForceMode.Acceleration);
-        }
-    }
+    #endregion
+
+    #region Getters
 
     public bool IsGrounded()
     {
         return grounded;
     }
+
+    public bool HasStamina()
+    {
+        return !staminaExhausted && stamina > 0f;
+    }
+
+    #endregion
 }

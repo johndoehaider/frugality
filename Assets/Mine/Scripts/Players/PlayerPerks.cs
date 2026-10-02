@@ -49,7 +49,7 @@ public class PlayerPerks : MonoBehaviour
 
         if (perkType == PerkType.StaminUp)
         {
-            playerMovement.ApplyStaminUp(4.5f, 7.0f, 100000f);
+            playerMovement.ApplyStaminUp(5.5f, 8.0f, 100000f);
         }
 
         if (perkType == PerkType.QuickRevive)
@@ -81,7 +81,7 @@ public class PlayerPerks : MonoBehaviour
 
         if (HasPerk(PerkType.StaminUp))
         {
-            playerMovement.ApplyStaminUp(3f,5f, 100f);
+            playerMovement.ApplyStaminUp(4f,6f, 100f);
         }
 
         if (HasPerk(PerkType.DoubleTap))

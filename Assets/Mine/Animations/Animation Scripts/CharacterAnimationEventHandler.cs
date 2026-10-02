@@ -68,5 +68,11 @@ public class CharacterAnimationEventHandler : MonoBehaviour
         if (playerCharacter != null)
             playerCharacter.AnimationEndedKnife();
     }
+
+    private void OnAnimationEndedLanding()
+    {
+        if (playerCharacter != null)
+            playerCharacter.AnimationEndedLanding();
+    }
     
 }
