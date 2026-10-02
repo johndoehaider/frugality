@@ -26,9 +26,10 @@ public class EnemyNavigation : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         agent.acceleration = behaviorData.GetAcceleration();
+        agent.angularSpeed = behaviorData.GetAngularSpeed();
         agent.stoppingDistance = behaviorData.GetStoppingDistance();
         agent.obstacleAvoidanceType = behaviorData.GetDefaultAvoidanceType();
-        agent.updateRotation = false;
+        agent.updateRotation = true;
     }
 
     #endregion
@@ -42,25 +43,48 @@ public class EnemyNavigation : MonoBehaviour
             return;
         }
 
+        agent.updateRotation = true;
+        agent.angularSpeed = Mathf.Max(0f, turnSpeed);
+
         if (Time.time >= nextPathRefreshTime)
         {
             agent.SetDestination(destination);
-            nextPathRefreshTime =
-                Time.time + behaviorData.GetPathRefreshInterval();
+            nextPathRefreshTime = Time.time + behaviorData.GetPathRefreshInterval();
         }
-
-        RotateTowardsMovement(turnSpeed);
     }
 
-    public bool AlignTowardsPosition(
-        Vector3 position,
-        float angleTolerance,
-        float turnSpeed)
+    public void MoveTowardsFacingPosition(Vector3 destination, float turnSpeed)
+    {
+        if (isShutdown || isMovementPaused || isManualTraversal)
+        {
+            return;
+        }
+
+        agent.updateRotation = false;
+
+        if (Time.time >= nextPathRefreshTime)
+        {
+            agent.SetDestination(destination);
+            nextPathRefreshTime = Time.time + behaviorData.GetPathRefreshInterval();
+        }
+
+        if (!TryGetFlatDirection(destination, out Vector3 direction))
+        {
+            return;
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Mathf.Max(0f, turnSpeed) * Time.deltaTime);
+    }
+
+    public bool AlignTowardsPosition(Vector3 position, float angleTolerance, float turnSpeed)
     {
         if (isShutdown)
         {
             return false;
         }
+
+        agent.updateRotation = false;
 
         if (!TryGetFlatDirection(position, out Vector3 direction))
         {
@@ -68,23 +92,14 @@ public class EnemyNavigation : MonoBehaviour
         }
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Mathf.Max(0f, turnSpeed) * Time.deltaTime);
 
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRotation,
-            Mathf.Max(0f, turnSpeed) * Time.deltaTime
-        );
-
-        return Quaternion.Angle(
-            transform.rotation,
-            targetRotation
-        ) <= Mathf.Max(0f, angleTolerance);
+        return Quaternion.Angle(transform.rotation, targetRotation) <= Mathf.Max(0f, angleTolerance);
     }
 
     public void FacePosition(Vector3 position)
     {
-        if (isShutdown ||
-            !TryGetFlatDirection(position, out Vector3 direction))
+        if (isShutdown || !TryGetFlatDirection(position, out Vector3 direction))
         {
             return;
         }
@@ -107,9 +122,7 @@ public class EnemyNavigation : MonoBehaviour
         nextPathRefreshTime = 0f;
     }
 
-    public bool IsWithinHorizontalDistance(
-        Vector3 position,
-        float distance)
+    public bool IsWithinHorizontalDistance(Vector3 position, float distance)
     {
         Vector3 difference = position - transform.position;
         difference.y = 0f;
@@ -135,15 +148,13 @@ public class EnemyNavigation : MonoBehaviour
 
         agent.isStopped = true;
         agent.updatePosition = false;
+        agent.updateRotation = false;
 
         isMovementPaused = true;
         isManualTraversal = true;
     }
 
-    public bool MoveManuallyTowards(
-        Vector3 destination,
-        float speed,
-        float turnSpeed)
+    public bool MoveManuallyTowards(Vector3 destination, float speed, float turnSpeed)
     {
         if (isShutdown || !isManualTraversal)
         {
@@ -153,23 +164,12 @@ public class EnemyNavigation : MonoBehaviour
         if (TryGetFlatDirection(destination, out Vector3 direction))
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-            transform.rotation = Quaternion.RotateTowards(
-                transform.rotation,
-                targetRotation,
-                Mathf.Max(0f, turnSpeed) * Time.deltaTime
-            );
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, Mathf.Max(0f, turnSpeed) * Time.deltaTime);
         }
 
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            destination,
-            Mathf.Max(0f, speed) * Time.deltaTime
-        );
+        transform.position = Vector3.MoveTowards(transform.position, destination, Mathf.Max(0f, speed) * Time.deltaTime);
 
-        return Vector3.SqrMagnitude(
-            destination - transform.position
-        ) <= 0.0001f;
+        return Vector3.SqrMagnitude(destination - transform.position) <= 0.0001f;
     }
 
     public bool CompleteManualTraversal()
@@ -185,6 +185,8 @@ public class EnemyNavigation : MonoBehaviour
         }
 
         agent.updatePosition = true;
+        agent.updateRotation = true;
+        agent.angularSpeed = behaviorData.GetAngularSpeed();
         agent.isStopped = false;
 
         isManualTraversal = false;
@@ -233,8 +235,7 @@ public class EnemyNavigation : MonoBehaviour
     {
         if (!isShutdown)
         {
-            agent.obstacleAvoidanceType =
-                behaviorData.GetDefaultAvoidanceType();
+            agent.obstacleAvoidanceType = behaviorData.GetDefaultAvoidanceType();
         }
     }
 
@@ -242,8 +243,7 @@ public class EnemyNavigation : MonoBehaviour
     {
         if (!isShutdown)
         {
-            agent.obstacleAvoidanceType =
-                behaviorData.GetEntryAvoidanceType();
+            agent.obstacleAvoidanceType = behaviorData.GetEntryAvoidanceType();
         }
     }
 
@@ -301,28 +301,7 @@ public class EnemyNavigation : MonoBehaviour
 
     #region Rotation Helpers
 
-    private void RotateTowardsMovement(float turnSpeed)
-    {
-        Vector3 direction = agent.desiredVelocity;
-        direction.y = 0f;
-
-        if (direction.sqrMagnitude < 0.0001f)
-        {
-            return;
-        }
-
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRotation,
-            Mathf.Max(0f, turnSpeed) * Time.deltaTime
-        );
-    }
-
-    private bool TryGetFlatDirection(
-        Vector3 position,
-        out Vector3 direction)
+    private bool TryGetFlatDirection(Vector3 position, out Vector3 direction)
     {
         direction = position - transform.position;
         direction.y = 0f;

@@ -113,7 +113,7 @@ public class Enemy : MonoBehaviour
             return;
         }
 
-        navigation.MoveTowards(
+        navigation.MoveTowardsFacingPosition(
             target.transform.position,
             behaviorData.GetAngularSpeed()
         );
