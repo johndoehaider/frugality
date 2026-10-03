@@ -28,9 +28,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4347967054050118674}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0.003468293, z: -0, w: 0.999994}
+  m_LocalRotation: {x: 0, y: -0.0034645577, z: 0, w: 0.99999404}
   m_LocalPosition: {x: -4.93, y: 1.3, z: 26.62}
-  m_LocalScale: {x: 1.6, y: 2.6, z: 0.6}
+  m_LocalScale: {x: 1.6000003, y: 2.6, z: 0.6000001}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -126,3 +126,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BuyableDoor
   price: 1000
+  zoneA: {fileID: 0}
+  zoneB: {fileID: 0}

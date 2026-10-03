@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator), typeof(WeaponAttachmentManager))]
 public class Weapon : MonoBehaviour
 {
+    #region Inspector
+
     [Header("Weapon Info")]
     [SerializeField] private string weaponName;
 
@@ -13,6 +16,12 @@ public class Weapon : MonoBehaviour
     [SerializeField] private LayerMask hitMask;
     [SerializeField] private float maximumDistance = 500f;
     [SerializeField] private float damage = 13f;
+
+    [Header("Enemy Penetration")]
+    [Min(1)]
+    [SerializeField] private int maxEnemyHitsPerShot = 1;
+    [Range(0f, 1f)]
+    [SerializeField] private float enemyPenetrationDamageRetention = 1f;
 
     [Header("Animation")]
     [SerializeField] private Transform socketEjection;
@@ -37,6 +46,10 @@ public class Weapon : MonoBehaviour
     [SerializeField] private int maxReserveAmmo = 120;
     [SerializeField] private int startingReserveAmmo = 32;
 
+    #endregion
+
+    #region Runtime State
+
     private Animator animator;
     private WeaponAttachmentManager attachmentManager;
 
@@ -47,8 +60,17 @@ public class Weapon : MonoBehaviour
     private PlayerPoints playerPoints;
     private Transform playerCamera;
 
+    private const int HitBufferSize = 64;
+
+    private readonly RaycastHit[] hitBuffer = new RaycastHit[HitBufferSize];
+    private readonly HashSet<Enemy> enemiesHitThisShot = new HashSet<Enemy>();
+
     private int currentAmmoInClip;
     private int currentReserveAmmo;
+
+    #endregion
+
+    #region Unity Lifecycle
 
     // Gets the weapon's Animator, attachment manager, owning Character, and player camera.
     private void Awake()
@@ -85,6 +107,10 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Weapon Modifiers And Animation
+
     // Plays the correct weapon reload animation depending on whether the magazine still has ammo.
     public void ReloadAnimation()
     {
@@ -109,7 +135,11 @@ public class Weapon : MonoBehaviour
         roundsPerMinute *= rIncrease;
     }
 
-    // Fires one shot, damages what the camera is aiming at, and spawns the visual projectile from the muzzle.
+    #endregion
+
+    #region Firing
+
+    // Fires one shot, resolves enemy penetration from the camera ray, and spawns the visual projectile from the muzzle.
     public void Fire(float spreadMultiplier = 1f)
     {
         if (muzzle != null && magazine != null && playerCamera != null && projectilePrefab != null)
@@ -124,19 +154,7 @@ public class Weapon : MonoBehaviour
 
                 muzzle.Effect();
 
-                Vector3 targetPoint = playerCamera.position + playerCamera.forward * maximumDistance;
-
-                if (Physics.Raycast(playerCamera.position, playerCamera.forward, out RaycastHit hit, maximumDistance, hitMask))
-                {
-                    targetPoint = hit.point;
-
-                    Enemy enemy = hit.collider.GetComponent<Enemy>();
-
-                    if (enemy != null)
-                    {
-                        enemy.LoseHealth(damage, playerPoints);
-                    }
-                }
+                Vector3 targetPoint = ResolveHitscan();
 
                 Quaternion projectileRotation = Quaternion.LookRotation(targetPoint - muzzleSocket.position);
 
@@ -151,6 +169,73 @@ public class Weapon : MonoBehaviour
             }
         }
     }
+
+    private Vector3 ResolveHitscan()
+    {
+        Vector3 rayOrigin = playerCamera.position;
+        Vector3 rayDirection = playerCamera.forward;
+        Vector3 targetPoint = rayOrigin + rayDirection * maximumDistance;
+
+        enemiesHitThisShot.Clear();
+
+        int hitCount = Physics.RaycastNonAlloc(rayOrigin, rayDirection, hitBuffer, maximumDistance, hitMask, QueryTriggerInteraction.Ignore);
+
+        SortHitsByDistance(hitCount);
+
+        int enemyHits = 0;
+        float currentDamage = damage;
+
+        for (int i = 0; i < hitCount; i++)
+        {
+            RaycastHit hit = hitBuffer[i];
+            Enemy enemy = hit.collider.GetComponentInParent<Enemy>();
+
+            if (enemy == null)
+            {
+                targetPoint = hit.point;
+                break;
+            }
+
+            if (!enemiesHitThisShot.Add(enemy))
+            {
+                continue;
+            }
+
+            enemy.LoseHealth(currentDamage, playerPoints);
+            enemyHits++;
+
+            if (enemyHits >= maxEnemyHitsPerShot)
+            {
+                targetPoint = hit.point;
+                break;
+            }
+
+            currentDamage *= enemyPenetrationDamageRetention;
+        }
+
+        return targetPoint;
+    }
+
+    private void SortHitsByDistance(int hitCount)
+    {
+        for (int i = 1; i < hitCount; i++)
+        {
+            RaycastHit hit = hitBuffer[i];
+            int previousIndex = i - 1;
+
+            while (previousIndex >= 0 && hitBuffer[previousIndex].distance > hit.distance)
+            {
+                hitBuffer[previousIndex + 1] = hitBuffer[previousIndex];
+                previousIndex--;
+            }
+
+            hitBuffer[previousIndex + 1] = hit;
+        }
+    }
+
+    #endregion
+
+    #region Ammunition
 
     // Adds ammunition during a reload animation. Passing 0 fills the magazine completely.
     public void FillAmmunition()
@@ -177,6 +262,10 @@ public class Weapon : MonoBehaviour
         currentReserveAmmo = maxReserveAmmo;
     }
 
+    #endregion
+
+    #region Effects
+
     // Spawns a casing at the weapon's ejection socket.
     public void EjectCasing()
     {
@@ -186,6 +275,10 @@ public class Weapon : MonoBehaviour
         }
     }
     
+    #endregion
+
+    #region Getters
+
     public string GetWeaponName()
     {
         return weaponName;
@@ -331,4 +424,6 @@ public class Weapon : MonoBehaviour
     {
         return attachmentManager;
     }
+
+    #endregion
 }

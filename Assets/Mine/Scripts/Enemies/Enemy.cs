@@ -24,9 +24,18 @@ public class Enemy : MonoBehaviour
     [SerializeField] private EnemyBehaviorData behaviorData;
 
     [Header("Speeds")]
-    [SerializeField] private float walkingSpeed = 1f;
-    [SerializeField] private float runningSpeed = 3f;
-    [SerializeField] private float sprintingSpeed = 6f;
+    [Min(0f)]
+    [SerializeField] private float walkingSpeedMin = 0.75f;
+    [Min(0f)]
+    [SerializeField] private float walkingSpeedMax = 1.35f;
+    [Min(0f)]
+    [SerializeField] private float runningSpeedMin = 2.25f;
+    [Min(0f)]
+    [SerializeField] private float runningSpeedMax = 3.5f;
+    [Min(0f)]
+    [SerializeField] private float sprintingSpeedMin = 5f;
+    [Min(0f)]
+    [SerializeField] private float sprintingSpeedMax = 6.5f;
 
     [Header("Health & Damage")]
     [SerializeField] private float damage = 60f;
@@ -294,29 +303,37 @@ public class Enemy : MonoBehaviour
 
     public void Walkers()
     {
-        currentSpeed = walkingSpeed;
+        currentSpeed = RollMovementSpeed(walkingSpeedMin, walkingSpeedMax);
         navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(false);
     }
 
     public void Runners()
     {
-        currentSpeed = runningSpeed;
+        currentSpeed = RollMovementSpeed(runningSpeedMin, runningSpeedMax);
         navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(true);
     }
 
     public void Sprinters()
     {
-        currentSpeed = sprintingSpeed;
+        currentSpeed = RollMovementSpeed(sprintingSpeedMin, sprintingSpeedMax);
         navigation.SetMovementSpeed(currentSpeed);
         SetMovementAnimationRunner(true);
     }
 
     public void DogSpeed()
     {
-        currentSpeed = runningSpeed;
+        currentSpeed = RollMovementSpeed(runningSpeedMin, runningSpeedMax);
         navigation.SetMovementSpeed(currentSpeed);
+    }
+
+    private float RollMovementSpeed(float minimumSpeed, float maximumSpeed)
+    {
+        float min = Mathf.Min(minimumSpeed, maximumSpeed);
+        float max = Mathf.Max(minimumSpeed, maximumSpeed);
+
+        return Random.Range(min, max);
     }
 
     #endregion

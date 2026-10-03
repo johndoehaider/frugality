@@ -1138,7 +1138,7 @@ GameObject:
   - component: {fileID: 5793176053040556544}
   - component: {fileID: 3072426353099054519}
   m_Layer: 0
-  m_Name: Camera Depth
+  m_Name: Camera Viewmodel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3446,7 +3446,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInteraction
   interactionRadius: 0.25
-  interactionDistance: 0.5
+  interactionDistance: 1
 --- !u!114 &8402811511541594698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3511,6 +3511,7 @@ GameObject:
   - component: {fileID: 8173473892429001995}
   - component: {fileID: 4696181790959844433}
   - component: {fileID: 1992653320201928049}
+  - component: {fileID: 2694702679872260216}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -3567,7 +3568,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 72.487625
+  field of view: 88.50715
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -3662,6 +3663,21 @@ MonoBehaviour:
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
   m_Version: 2
+--- !u!114 &2694702679872260216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8931043928743445660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd1b23206c2425d4d9faa5689ead1ad8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraFOVController
+  worldFOV: 120
+  adsMagnification: 1.25
+  adsTransitionSpeed: 300
 --- !u!1 &9092946181702860026
 GameObject:
   m_ObjectHideFlags: 0
