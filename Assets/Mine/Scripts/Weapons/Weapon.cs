@@ -56,7 +56,6 @@ public class Weapon : MonoBehaviour
     private Magazine magazine;
     private Muzzle muzzle;
 
-    private Character playerCharacter;
     private PlayerPoints playerPoints;
     private Transform playerCamera;
 
@@ -77,34 +76,21 @@ public class Weapon : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         attachmentManager = GetComponent<WeaponAttachmentManager>();
-        playerCharacter = GetComponentInParent<Character>();
+
+        Character playerCharacter = GetComponentInParent<Character>();
+
         playerPoints = GetComponentInParent<PlayerPoints>();
-
-        if (playerCharacter != null)
-        {
-            Camera cameraWorld = playerCharacter.GetCameraWorld();
-
-            if (cameraWorld != null)
-            {
-                playerCamera = cameraWorld.transform;
-            }
-        }
+        playerCamera = playerCharacter.GetCameraWorld().transform;
     }
 
     // Gets the equipped magazine and muzzle, then fills the magazine at startup.
     private void Start()
     {
-        if (attachmentManager != null)
-        {
-            magazine = attachmentManager.GetEquippedMagazine();
-            muzzle = attachmentManager.GetEquippedMuzzle();
-        }
+        magazine = attachmentManager.GetEquippedMagazine();
+        muzzle = attachmentManager.GetEquippedMuzzle();
 
-        if (magazine != null)
-        {
-            currentAmmoInClip = magazine.GetMaxAmmoInClip();
-            currentReserveAmmo = startingReserveAmmo;
-        }
+        currentAmmoInClip = magazine.GetMaxAmmoInClip();
+        currentReserveAmmo = startingReserveAmmo;
     }
 
     #endregion
@@ -334,14 +320,7 @@ public class Weapon : MonoBehaviour
     // Returns the firing sound supplied by the equipped muzzle.
     public AudioClip GetAudioClipFire()
     {
-        if (muzzle != null)
-        {
-            return muzzle.GetAudioClipFire();
-        }
-        else
-        {
-            return null;
-        }
+        return muzzle.GetAudioClipFire();
     }
 
     // Returns the amount of ammunition currently loaded.
@@ -365,14 +344,7 @@ public class Weapon : MonoBehaviour
     // Returns the maximum ammunition the equipped magazine can hold.
     public int GetMaxAmmoInClip()
     {
-        if (magazine != null)
-        {
-            return magazine.GetMaxAmmoInClip();
-        }
-        else
-        {
-            return 0;
-        }
+        return magazine.GetMaxAmmoInClip();
     }
 
     // Returns whether holding fire should continuously shoot this weapon.
@@ -390,27 +362,13 @@ public class Weapon : MonoBehaviour
     // Returns whether the current magazine is completely full.
     public bool IsFull()
     {
-        if (magazine != null && currentAmmoInClip == magazine.GetMaxAmmoInClip())
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return currentAmmoInClip == magazine.GetMaxAmmoInClip();
     }
 
     // Returns whether at least one round is currently loaded.
     public bool HasAmmunition()
     {
-        if (currentAmmoInClip > 0)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return currentAmmoInClip > 0;
     }
 
     // Returns the character Animator Controller used while this weapon is equipped.

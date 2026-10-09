@@ -7,7 +7,6 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     #region AI State
-
     private enum EnemyAIState
     {
         Chasing,
@@ -17,7 +16,6 @@ public class Enemy : MonoBehaviour
     }
 
     #endregion
-
     #region Inspector
 
     [Header("Behavior")]
@@ -42,7 +40,6 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float health = 100f;
 
     #endregion
-
     #region Speed Distribution Constants
 
     private const int MoveSpeedRoundMultiplier = 8;
@@ -51,7 +48,6 @@ public class Enemy : MonoBehaviour
     private const int RunSpeedThreshold = 70;
 
     #endregion
-
     #region Runtime State
 
     private EnemyTargeting targeting;
@@ -70,7 +66,19 @@ public class Enemy : MonoBehaviour
     private float currentSpeed;
 
     #endregion
+    #region Initialization
 
+    public void Initialize(SpawnManager manager, PowerUpManager powerUps, GameManager gameManager)
+    {
+        spawnManager = manager;
+        powerupManager = powerUps;
+
+        navigation.Initialize(behaviorData);
+        targeting.Initialize(behaviorData, gameManager);
+        entry.Initialize(this, navigation, behaviorData, animator);
+    }
+
+    #endregion
     #region Unity Lifecycle
 
     private void Awake()
@@ -80,8 +88,6 @@ public class Enemy : MonoBehaviour
         entry = GetComponent<EnemyEntry>();
         animator = GetComponentInChildren<Animator>();
         rootCollider = GetComponent<Collider>();
-
-        entry.Initialize(this, navigation, behaviorData, animator);
     }
 
     private void Update()
@@ -253,7 +259,7 @@ public class Enemy : MonoBehaviour
         }
 
         playerPoints?.AddPoints(50);
-        powerupManager?.TryDropPowerUp(transform.position);
+        powerupManager.TryDropPowerUp(transform.position);
 
         BeginDeath();
     }
@@ -273,7 +279,7 @@ public class Enemy : MonoBehaviour
         targeting.Shutdown();
         navigation.Shutdown();
 
-        spawnManager?.EnemyDied(this);
+        spawnManager.EnemyDied(this);
         StartCoroutine(DeathRoutine());
     }
 
@@ -376,20 +382,6 @@ public class Enemy : MonoBehaviour
         {
             Sprinters();
         }
-    }
-
-    #endregion
-
-    #region Dependencies
-
-    public void SetSpawnManager(SpawnManager manager)
-    {
-        spawnManager = manager;
-    }
-
-    public void SetPowerUpManager(PowerUpManager manager)
-    {
-        powerupManager = manager;
     }
 
     #endregion

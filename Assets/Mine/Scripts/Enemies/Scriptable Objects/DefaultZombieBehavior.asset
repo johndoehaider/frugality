@@ -18,6 +18,10 @@ MonoBehaviour:
   acceleration: 12
   angularSpeed: 720
   defaultAvoidanceType: 1
+  chaseWeaveStartDistance: 6.35
+  chaseWeaveWidth: 0.5
+  chaseWeaveLookahead: 3
+  chaseWeaveRefreshTime: 2
   attackRange: 1.5
   stoppingDistance: 0.8
   entryStagingDistance: 1.5

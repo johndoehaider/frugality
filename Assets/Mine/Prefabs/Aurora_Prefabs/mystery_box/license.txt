@@ -1,0 +1,11 @@
+Model Information:
+* title:	Mystery Box
+* source:	https://sketchfab.com/3d-models/mystery-box-0dc052501f8e4f1caaa9f1d72ed7e612
+* author:	MDTOWERZ (https://sketchfab.com/mdtowerz)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Mystery Box" (https://sketchfab.com/3d-models/mystery-box-0dc052501f8e4f1caaa9f1d72ed7e612) by MDTOWERZ (https://sketchfab.com/mdtowerz) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

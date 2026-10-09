@@ -217,14 +217,9 @@ public class SpawnManager : MonoBehaviour
     private Enemy SpawnEnemy(GameObject prefab, Vector3 position, Quaternion rotation)
     {
         GameObject enemyObject = Instantiate(prefab, position, rotation);
-
         Enemy enemy = enemyObject.GetComponent<Enemy>();
-        EnemyTargeting targeting = enemyObject.GetComponent<EnemyTargeting>();
 
-        targeting.SetGameManager(gameManager);
-        enemy.SetSpawnManager(this);
-        enemy.SetPowerUpManager(powerupManager);
-
+        enemy.Initialize(this, powerupManager, gameManager);
         activeEnemies.Add(enemy);
 
         return enemy;
@@ -550,14 +545,9 @@ public class SpawnManager : MonoBehaviour
                 isValid = false;
             }
 
-            if (prefab.GetComponent<Enemy>() == null ||
-                prefab.GetComponent<EnemyTargeting>() == null)
+            if (prefab.GetComponent<Enemy>() == null)
             {
-                Debug.LogError(
-                    $"Enemy prefab '{prefab.name}' is missing required enemy components.",
-                    prefab
-                );
-
+                Debug.LogError($"Enemy prefab '{prefab.name}' is missing Enemy.", prefab);
                 isValid = false;
             }
         }

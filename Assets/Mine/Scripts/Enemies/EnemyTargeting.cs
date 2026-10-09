@@ -4,31 +4,28 @@ using UnityEngine.AI;
 
 public class EnemyTargeting : MonoBehaviour
 {
-    [SerializeField] private EnemyBehaviorData behaviorData;
-
+    private EnemyBehaviorData behaviorData;
     private GameManager gameManager;
     private Character currentTarget;
     private PlayerHealth currentTargetHealth;
     private NavMeshPath targetPath;
+    
+    private const int TargetPathCornerBufferSize = 64;
+    private readonly Vector3[] targetPathCorners = new Vector3[TargetPathCornerBufferSize];
 
     private float nextTargetRefreshTime;
     private bool isPaused;
     private bool isShutdown;
 
-    private void Awake()
+    public void Initialize(EnemyBehaviorData data, GameManager manager)
     {
+        behaviorData = data;
+        gameManager = manager;
         targetPath = new NavMeshPath();
     }
 
     private void Start()
     {
-        if (gameManager == null)
-        {
-            Debug.LogError("EnemyTargeting was not given a GameManager.", this);
-            enabled = false;
-            return;
-        }
-
         if (!isPaused)
         {
             RefreshTarget();
@@ -101,11 +98,6 @@ public class EnemyTargeting : MonoBehaviour
         enabled = false;
     }
 
-    public void SetGameManager(GameManager manager)
-    {
-        gameManager = manager;
-    }
-
     private void RefreshTarget()
     {
         FindBestTarget();
@@ -160,22 +152,17 @@ public class EnemyTargeting : MonoBehaviour
     {
         targetPath.ClearCorners();
 
-        if (!NavMesh.CalculatePath(
-            transform.position,
-            targetPosition,
-            NavMesh.AllAreas,
-            targetPath) ||
-            targetPath.status != NavMeshPathStatus.PathComplete)
+        if (!NavMesh.CalculatePath(transform.position, targetPosition, NavMesh.AllAreas, targetPath) || targetPath.status != NavMeshPathStatus.PathComplete)
         {
             return Mathf.Infinity;
         }
 
-        Vector3[] corners = targetPath.corners;
+        int cornerCount = targetPath.GetCornersNonAlloc(targetPathCorners);
         float distance = 0f;
 
-        for (int i = 1; i < corners.Length; i++)
+        for (int i = 1; i < cornerCount; i++)
         {
-            distance += Vector3.Distance(corners[i - 1], corners[i]);
+            distance += Vector3.Distance(targetPathCorners[i - 1], targetPathCorners[i]);
         }
 
         return distance;
